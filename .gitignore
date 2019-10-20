@@ -1,3 +1,6 @@
+# Data
+data/*
+
 # VS Code Workspace
 *.code-workspace
 
