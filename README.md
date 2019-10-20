@@ -1,2 +1,3 @@
-# ar-semantic-understanding
+# AR Semantic Understanding
+
 Semantic understanding for AR
