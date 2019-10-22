@@ -4,8 +4,9 @@
 # Data
 data/*
 
-# VS Code Workspace
+# VS Code
 *.code-workspace
+.vscode/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
