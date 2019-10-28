@@ -5,6 +5,11 @@ Visualize SUN RGB-D data.
 import sys
 import os
 import argparse
+import json
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+PLOT_COLORS = ["blue", "green", "red", "cyan", "magenta", "yellow"]
 
 class Visualizer:
     """
@@ -35,7 +40,56 @@ class Visualizer:
         """
         Display the image with segmentation ground truth.
         """
-        pass
+        image = plt.imread(self.__image_file)
+        fig, ax = plt.subplots()
+        ax.imshow(image)
+        ax.axis("off")
+        annotations = self.__read_annotation_file()
+
+        color_idx = 0
+        color_assignments = {}
+        for annotation in annotations:
+            name = annotation["name"]
+
+            if name in color_assignments:
+                color = color_assignments[name]
+            else:
+                color = PLOT_COLORS[color_idx % (len(PLOT_COLORS) - 1)]
+                color_idx += 1
+                color_assignments[name] = color
+
+            patch = patches.Polygon(annotation["coordinates"],
+                                    facecolor=color,
+                                    label=name,
+                                    alpha=0.5)
+            ax.add_patch(patch)
+
+        handles, labels = ax.get_legend_handles_labels()
+
+        plt.legend(handles=handles, ncol=2, bbox_to_anchor=(1.0, 1.0))
+
+        plt.show()
+
+    def __read_annotation_file(self):
+        annotation_json = open(self.__annotation_file)
+        annotations = json.load(annotation_json)
+
+        objects = annotations["objects"]
+
+        formatted_annotations = []
+
+        for annotation in annotations["frames"][0]["polygon"]:
+            if annotation["x"] and annotation["y"] and len(annotation["x"]) == len(annotation["y"]):
+                coordinates = []
+                for x, y in zip(annotation["x"], annotation["y"]):
+                    coordinates.append((x, y))
+                formatted_annotations.append({
+                    "coordinates": coordinates,
+                    "name": objects[annotation["object"]]["name"]
+                })
+            else:
+                print("Ivalid annotation: %s" % self.__annotation_file)
+        return formatted_annotations
 
 def main():
     """
