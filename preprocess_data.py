@@ -12,22 +12,30 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from PIL import Image
 
-PLOT_COLORS = ["blue", "green", "red", "cyan", "magenta", "yellow"]
-NAME_TO_RGB = {
-    "blue": [0.0, 0.0, 1.0],
-    "green": [0.0, 1.0, 0.0],
-    "red": [1.0, 0.0, 0.0],
-    "cyan": [0.0, 1.0, 1.0],
-    "magenta": [1.0, 0.0, 1.0],
-    "yellow": [1.0, 1.0, 0.0]
-}
-TARGET_IMAGE_WIDTH_HEIGHT = 224
+PLOT_COLORS = [(0.0, 0.0, 1.0),
+               (0.0, 1.0, 0.0),
+               (1.0, 0.0, 0.0),
+               (0.0, 1.0, 1.0),
+               (1.0, 0.0, 1.0),
+               (1.0, 1.0, 0.0),
+
+               (0.0, 0.0, 0.5),
+               (0.0, 0.5, 0.0),
+               (0.5, 0.0, 0.0),
+               (0.0, 0.5, 0.5),
+               (0.5, 0.0, 0.5),
+               (0.5, 0.5, 0.0)]
+
+TARGET_IMAGE_WIDTH = 500
+TARGET_IMAGE_HEIGHT = 300
+
+CLASSES = json.load(open("./data/SUNRGBD_class_to_new_class_mapping.json", "r"))
 
 class Preprocessor():
     """
     Preprocess SUN RBG-D data.
     """
-    def __init__(self, src_dir, src_dir_struct_file, dst_dir):
+    def __init__(self, src_dir, src_dir_struct_file, dst_dir, interactive):
         assert os.path.exists(src_dir), "Src path provided ivalid."
         assert os.path.isfile(src_dir_struct_file), "Src dir struct file does not exist."
         assert os.path.exists(dst_dir), "Dst path provided ivalid."
@@ -37,6 +45,10 @@ class Preprocessor():
         self.__src_dir = src_dir
         self.__src_dir_struct = src_dir_struct
         self.__dst_dir = dst_dir
+        self.__image_dst_dir = os.path.join(dst_dir, "images")
+        self.__annotations_dst_dir = os.path.join(dst_dir, "annotations")
+        print(self.__image_dst_dir)
+        self.__interactive = interactive
 
     def preprocess(self):
         """
@@ -46,17 +58,16 @@ class Preprocessor():
         total_invalid = 0
         for data_dir in self.__src_dir_struct:
             data_dir = os.path.join(self.__src_dir, data_dir)
-            #f for f in os.listdir(path) if not f.startswith('.')
             for subdir in os.listdir(data_dir):
                 if not subdir.startswith("."):
-                    num_invalid = self.__process_data(os.path.join(data_dir, subdir))
+                    num_invalid = self.__process_data(os.path.join(data_dir, subdir), f"{count:05}")
                     count += 1
                     total_invalid += num_invalid
         print("%d invalid annotations!" % total_invalid)
         print("Total data samples: %d" % count)
 
-    def __process_data(self, data_dir):
-        print("Processing: %s" % data_dir)
+    def __process_data(self, data_dir, data_id):
+        print("Processing %s: %s" % (data_id, data_dir))
         image_dir = os.path.join(data_dir, "image")
         annotation_dir = os.path.join(data_dir, "annotation2Dfinal")
 
@@ -82,34 +93,43 @@ class Preprocessor():
 
         assert original_image_width >= original_image_height, "Image height is greater than width"
 
-        image = image.resize((int(TARGET_IMAGE_WIDTH_HEIGHT * width_height_ratio), TARGET_IMAGE_WIDTH_HEIGHT))
+        image = image.resize((int(TARGET_IMAGE_WIDTH * width_height_ratio), TARGET_IMAGE_HEIGHT))
 
         post_resize_image_width, post_resize_image_height = image.size
 
-        left = (post_resize_image_width - TARGET_IMAGE_WIDTH_HEIGHT) / 2
-        top = (post_resize_image_height - TARGET_IMAGE_WIDTH_HEIGHT) / 2
-        right = (post_resize_image_width + TARGET_IMAGE_WIDTH_HEIGHT) / 2
-        bottom = (post_resize_image_height + TARGET_IMAGE_WIDTH_HEIGHT) / 2
+        left = (post_resize_image_width - TARGET_IMAGE_WIDTH) / 2
+        top = (post_resize_image_height - TARGET_IMAGE_HEIGHT) / 2
+        right = (post_resize_image_width + TARGET_IMAGE_WIDTH) / 2
+        bottom = (post_resize_image_height + TARGET_IMAGE_HEIGHT) / 2
 
         image = image.crop((left, top, right, bottom))
+
+        image_width, image_height = image.size
+        segmented_image = np.zeros(np.shape(image))
+
+        # Width, Height
+        segmentation_data = np.zeros((np.shape(image)[1], np.shape(image)[0]))
 
         plt.figure()
         ax = plt.subplot(1, 2, 1)
         ax.imshow(image)
         ax.axis("off")
 
-        image_width, image_height = image.size
-        segmented_image = np.zeros(np.shape(image))
-
         color_idx = 0
         color_assignments = {}
+
         for annotation in annotations:
-            name = annotation["name"]
+            name = annotation["name"].lower()
+
+            if not name in CLASSES:
+                continue
+
+            class_id = CLASSES[name]
 
             if name in color_assignments:
                 color = color_assignments[name]
             else:
-                color = PLOT_COLORS[color_idx % (len(PLOT_COLORS) - 1)]
+                color = PLOT_COLORS[color_idx % (len(PLOT_COLORS))]
                 color_idx += 1
                 color_assignments[name] = color
 
@@ -141,20 +161,39 @@ class Preprocessor():
             for h in range(0, image_height):
                 for w in range(0, image_width):
                     if mask[h][w]:
-                        segmented_image[h][w] = NAME_TO_RGB[color]
+                        segmented_image[h][w] = color
+                        segmentation_data[w][h] = class_id
 
-        handles, _ = ax.get_legend_handles_labels()
+        image_name = data_id + ".jpg"
+        annotation_name = data_id + ".json"
 
-        plt.legend(handles=handles, ncol=2, bbox_to_anchor=(1.0, 1.0))
+        new_annotation = {
+            "annotation": segmentation_data.tolist(),
+            "image_name": image_name,
+            "id": data_id
+        }
+
+        image.save(os.path.join(self.__image_dst_dir, image_name), "JPEG")
+        with open(os.path.join(self.__annotations_dst_dir, annotation_name), "w+") as outfile:
+            json.dump(new_annotation, outfile)
+
+        handles, labels = ax.get_legend_handles_labels()
+
+        labels, ids = np.unique(labels, return_index=True)
+        handles = [handles[i] for i in ids]
+        plt.legend(handles, labels, ncol=4, bbox_to_anchor=(2.0, 1.5))
 
         ax = plt.subplot(1, 2, 2)
         ax.imshow(segmented_image)
 
-        plt.show()
+        if self.__interactive:
+            plt.show()
+            should_continue = input("Do you want to continue? [y/n] ")
+            if should_continue is "n":
+                sys.exit(0)
 
-        should_continue = input("Do you want to continue? [y/n] ")
-        if should_continue is "n":
-            sys.exit(0)
+        plt.close("all")
+        image.close()
 
         return num_invalid
 
@@ -216,9 +255,10 @@ def main():
     parser.add_argument("src_struct_file", type=str,
                         help="A json file which contains the dir structure.")
     parser.add_argument("dst_path", type=str, help="Path to store the preprocessed data.")
+    parser.add_argument("--interactive", action="store_true")
     args = parser.parse_args()
 
-    preprocessor = Preprocessor(args.src_path, args.src_struct_file, args.dst_path)
+    preprocessor = Preprocessor(args.src_path, args.src_struct_file, args.dst_path, args.interactive)
     preprocessor.preprocess()
 
 if __name__ == "__main__":
