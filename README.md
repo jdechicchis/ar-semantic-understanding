@@ -21,4 +21,29 @@ Semantic understanding for augmented reality (AR) applications.
 
 ### Data Directory
 
+The data directory is set up as follows:
+
+```text
+data -
+     |---- classes.json
+     |---- annotations
+           |---- 00000.json
+           |---- 00001.json
+           |---- 00002.json
+           |---- ...
+           |---- 10335.json
+     |---- images
+           |---- 00000.jpg
+           |---- 00001.jpg
+           |---- 00002.jpg
+           |---- ...
+           |---- 10335.jpg
+```
+
 ### Annotation Format
+
+Annotation files contains a dictionary with the following keys and values:
+
+- `id`: ID of annotation (string)
+- `image_name`: Name of image associated with the annotation (string)
+- `annotation`: A 800(w) x 500(h) array indexed by [w][h] where each entry is the class ID of the corresponding pixel.
