@@ -26,10 +26,10 @@ PLOT_COLORS = [(0.0, 0.0, 1.0),
                (0.5, 0.0, 0.5),
                (0.5, 0.5, 0.0)]
 
-TARGET_IMAGE_WIDTH = 500
-TARGET_IMAGE_HEIGHT = 300
+TARGET_IMAGE_WIDTH = 224
+TARGET_IMAGE_HEIGHT = 224
 
-CLASSES = json.load(open("./data/SUNRGBD_class_to_new_class_mapping.json", "r"))
+CLASSES = json.load(open("../data/SUNRGBD_Meta/SUNRGBD_class_to_new_class_mapping.json", "r"))
 
 class Preprocessor():
     """
@@ -47,7 +47,6 @@ class Preprocessor():
         self.__dst_dir = dst_dir
         self.__image_dst_dir = os.path.join(dst_dir, "images")
         self.__annotations_dst_dir = os.path.join(dst_dir, "annotations")
-        print(self.__image_dst_dir)
         self.__interactive = interactive
 
     def preprocess(self):
