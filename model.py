@@ -6,9 +6,14 @@ import sys
 import json
 from PIL import Image
 import numpy as np
+from comet_ml import Experiment
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow_examples.models.pix2pix import pix2pix
+
+# Comet setup
+EXPERIMENT = Experiment(api_key="rHMyNdGv3wJ1sVO0v1OjvlmCo",
+                        project_name="ar-semantic-understanding", workspace="jdechicchis")
 
 # Number of classes per pixel
 NUM_CLASSES = 8
@@ -18,26 +23,23 @@ WIDTH = 224
 HEIGHT = 224
 
 # Training parameters
-TRAIN_LENGTH = 10335
 BATCH_SIZE = 32
-STEPS_PER_EPOCH = TRAIN_LENGTH // BATCH_SIZE
-VALIDATION_STEPS = STEPS_PER_EPOCH
 EPOCHS = 20
 
 class DataGenerator(tf.keras.utils.Sequence):
     """
     Custom data generator to provide data for training/testing.
     """
-    def __init__(self, batch_size):
+    def __init__(self, batch_size, data_ids):
         self.__batch_size = batch_size
-        self.__data_ids = [f"{i:05}" for i in range(0, 10336)]
+        self.__data_ids = data_ids
         self.__current_index = 0
 
     def __len__(self):
         """
         Return the number of batches per epoch.
         """
-        return STEPS_PER_EPOCH
+        return len(self.__data_ids) // self.__batch_size
 
     def __getitem__(self, index):
         """
@@ -45,19 +47,13 @@ class DataGenerator(tf.keras.utils.Sequence):
         """
         data = []
         labels = []
-
         for _ in range(0, self.__batch_size):
             sample, label = self.__load_data(self.__data_ids[self.__current_index])
             data.append(sample)
             labels.append(label)
             self.__current_index += 1
-            if self.__current_index > 10335:
+            if self.__current_index > len(self.__data_ids) - 1:
                 self.__current_index = 0
-
-        #print(np.shape(np.stack([np.zeros((244, 224, 3)) for i in range(0, self.__batch_size)], axis=0)))
-        #return [np.zeros((244, 224, 3)) for i in range(0, self.__batch_size)], [np.zeros((244, 224, NUM_CLASSES)) for i in range(0, self.__batch_size)]
-        #return [np.zeros((244, 224, 3)) for i in range(0, self.__batch_size)], [np.zeros((244, 224, NUM_CLASSES)) for i in range(0, self.__batch_size)]
-        #return np.zeros((self.__batch_size, WIDTH, HEIGHT, 3), dtype=np.float32), np.zeros((self.__batch_size, WIDTH, HEIGHT), dtype=np.int32)
         return np.stack(data, axis=0), np.stack(labels, axis=0)
 
     def __load_data(self, data_id):
@@ -127,14 +123,18 @@ def unet_model(output_channels):
     return tf.keras.Model(inputs=inputs, outputs=x)
 
 def display(display_list):
-    plt.figure(figsize=(15, 15))
+    """
+    Display image, true mask, and predicted mask.
+    """
+    plt.figure(figsize=(15, 5))
 
     title = ['Input Image', 'True Mask', 'Predicted Mask']
 
-    for i in range(len(display_list)):
+    for i, display_item in enumerate(display_list):
+    #for i in range(0, len(display_list)):
         plt.subplot(1, len(display_list), i+1)
         plt.title(title[i])
-        plt.imshow(tf.keras.preprocessing.image.array_to_img(display_list[i]))
+        plt.imshow(tf.keras.preprocessing.image.array_to_img(display_item))
         plt.axis('off')
     plt.show()
 
@@ -143,6 +143,9 @@ def display(display_list):
         sys.exit(0)
 
 def create_mask(pred_mask):
+    """
+    Get the mask from a prediction.
+    """
     pred_mask = np.argmax(pred_mask, axis=3)
     return pred_mask[0]
 
@@ -150,6 +153,8 @@ def main():
     """
     Model setup and training.
     """
+    checkpoint_filepath = "./model/weights.best.hdf5"
+
     image_file = Image.open("./data/images/" + "00000" + ".jpg")
     image = np.asarray(image_file)
     image = image / 255.0
@@ -162,9 +167,11 @@ def main():
     for w in range(0, 224):
         for h in range(0, 224):
             mask[h][w] = [label[w][h]]
-    #display([image, mask])
 
     model = unet_model(NUM_CLASSES)
+
+    model.load_weights(checkpoint_filepath)
+
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
     #tf.keras.utils.plot_model(model, show_shapes=True)
@@ -176,18 +183,35 @@ def main():
     for w in range(0, 224):
         for h in range(0, 224):
             pred_mask_new[h][w] = [pred_mask[w][h]]
-    display([image, mask, pred_mask_new])
+    #display([image, mask, pred_mask_new])
 
-    training_generator = DataGenerator(BATCH_SIZE)
-    validation_generator = DataGenerator(BATCH_SIZE)
+    train_test_file = open("./data/train_test_data_split.json", "r")
+    train_test_split = json.load(train_test_file)
 
-    model.fit_generator(generator=training_generator,
-                        epochs=EPOCHS,
-                        steps_per_epoch=STEPS_PER_EPOCH,
-                        validation_steps=VALIDATION_STEPS,
-                        validation_data=validation_generator,
-                        use_multiprocessing=True,
-                        workers=6)
+    training_generator = DataGenerator(BATCH_SIZE, train_test_split["train"])
+    validation_generator = DataGenerator(BATCH_SIZE, train_test_split["test"])
+
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpoint_filepath,
+                                                    monitor='val_accuracy',
+                                                    verbose=1,
+                                                    save_best_only=True,
+                                                    mode='max')
+    callbacks_list = [checkpoint]
+
+    EXPERIMENT.log_parameters({
+        "batch_size": BATCH_SIZE,
+        "epochs": EPOCHS
+    })
+
+    with EXPERIMENT.train():
+        model.fit_generator(generator=training_generator,
+                            epochs=EPOCHS,
+                            steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
+                            validation_steps=len(train_test_split["test"]) // BATCH_SIZE,
+                            validation_data=validation_generator,
+                            use_multiprocessing=True,
+                            workers=6,
+                            callbacks=callbacks_list)
 
 if __name__ == "__main__":
     sys.exit(main())

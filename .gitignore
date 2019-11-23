@@ -4,6 +4,9 @@
 # Data
 data/*
 
+# Model
+model/*
+
 # VS Code
 *.code-workspace
 .vscode/*
