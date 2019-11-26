@@ -4,16 +4,20 @@ Based off of the TensorFlow image segmentation example
 
 import sys
 import json
+import random
 from PIL import Image
 import numpy as np
+import scipy
 from comet_ml import Experiment
 import tensorflow as tf
+from tensorflow.python.keras import backend as K
 import matplotlib.pyplot as plt
 from tensorflow_examples.models.pix2pix import pix2pix
 
 # Comet setup
-EXPERIMENT = Experiment(api_key="rHMyNdGv3wJ1sVO0v1OjvlmCo",
-                        project_name="ar-semantic-understanding", workspace="jdechicchis")
+EXPERIMENT = None
+#EXPERIMENT = Experiment(api_key="rHMyNdGv3wJ1sVO0v1OjvlmCo",
+#                        project_name="ar-semantic-understanding", workspace="jdechicchis")
 
 # Number of classes per pixel
 NUM_CLASSES = 8
@@ -23,8 +27,19 @@ WIDTH = 224
 HEIGHT = 224
 
 # Training parameters
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 EPOCHS = 20
+CLASS_WEIGHT = {
+    0: 1,
+    1: 175,
+    2: 8,
+    3: 9,
+    4: 137,
+    5: 140,
+    6: 34,
+    7: 44
+}
+CLASS_WEIGHTS = K.variable(np.array([1, 175, 8, 9, 137, 140, 34, 44]))
 
 class DataGenerator(tf.keras.utils.Sequence):
     """
@@ -68,7 +83,19 @@ class DataGenerator(tf.keras.utils.Sequence):
         label = np.array(annotation_data["annotation"])
         image_file.close()
         annotation_file.close()
-        return image, label
+
+        # Randomly horizontal flip
+        if bool(random.getrandbits(1)):
+            image = np.flip(image, axis=1)
+            label = np.flip(label, axis=1)
+
+        new_label = np.zeros((HEIGHT, WIDTH, NUM_CLASSES), dtype=np.float32)
+
+        for h in range(0, HEIGHT):
+            for w in range(0, WIDTH):
+                new_label[h][w][label[h][w]] = 1
+
+        return image, new_label
 
 def unet_model(output_channels):
     """
@@ -149,31 +176,68 @@ def create_mask(pred_mask):
     pred_mask = np.argmax(pred_mask, axis=3)
     return pred_mask[0]
 
+def custom_f1_score(y_true, y_pred):
+    """
+    print(type(y_true))
+    print(type(y_pred))
+    print(y_true.shape)
+    print(y_pred.shape)
+    return 0#f1_score(y_true, y_pred, average='weighted')
+    y_true = K.flatten(y_true)
+    y_pred = K.flatten(y_pred)
+    """
+    #print("HERE!")
+    #y_true = tf.keras.utils.to_categorical(y_true, num_classes=NUM_CLASSES)
+    #print(type(y_true))
+    return 2 * (K.sum(y_true * y_pred)+ K.epsilon()) / (K.sum(y_true) + K.sum(y_pred) + K.epsilon())
+
+def weighted_categorical_crossentropy(y_true,y_pred):
+    y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
+    # clip to prevent NaN's and Inf's
+    y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    # calc
+    loss = y_true * K.log(y_pred) * CLASS_WEIGHTS
+    loss = -K.sum(loss, -1)
+    return loss
+
 def main():
     """
     Model setup and training.
     """
     checkpoint_filepath = "./model/weights.best.hdf5"
 
-    image_file = Image.open("./data/images/" + "00000" + ".jpg")
+    #00004
+    image_file = Image.open("./data/images/" + "07400" + ".jpg")
     image = np.asarray(image_file)
     image = image / 255.0
-    annotation_file = open("./data/annotations/" + "00000" + ".json", "r")
+    annotation_file = open("./data/annotations/" + "07400" + ".json", "r")
     annotation_data = json.load(annotation_file)
     label = np.array(annotation_data["annotation"])
     image_file.close()
     annotation_file.close()
     mask = np.zeros((224, 224, 1), dtype=np.int32)
+
+    """
+    print(np.shape(image))
+    image = scipy.ndimage.rotate(image, angle=10, mode="reflect", reshape=False)
+    print(np.shape(image))
+    print(np.shape(label))
+    label = scipy.ndimage.rotate(label, angle=-10, mode="reflect", reshape=False)
+    print(np.shape(label))
+    """
+
     for w in range(0, 224):
         for h in range(0, 224):
-            mask[h][w] = [label[w][h]]
+            mask[h][w] = [label[h][w]]
 
     model = unet_model(NUM_CLASSES)
 
-    model.load_weights(checkpoint_filepath)
+    model.load_weights("./model/experiment_c0bb65e10/weights.best.hdf5")
 
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
+    model.compile(optimizer="adam",
+                  loss=weighted_categorical_crossentropy,#"categorical_crossentropy", #sparse_categorical_crossentropy
+                  metrics=["accuracy", "CategoricalAccuracy", custom_f1_score])
+                  #weighted_metrics=['accuracy'])
     #tf.keras.utils.plot_model(model, show_shapes=True)
 
     pred_mask = model.predict(np.stack([image], axis=0))
@@ -182,8 +246,8 @@ def main():
     pred_mask_new = np.zeros((224, 224, 1), dtype=np.int32)
     for w in range(0, 224):
         for h in range(0, 224):
-            pred_mask_new[h][w] = [pred_mask[w][h]]
-    #display([image, mask, pred_mask_new])
+            pred_mask_new[h][w] = [pred_mask[h][w]]
+    display([image, mask, pred_mask_new])
 
     train_test_file = open("./data/train_test_data_split.json", "r")
     train_test_split = json.load(train_test_file)
@@ -192,26 +256,30 @@ def main():
     validation_generator = DataGenerator(BATCH_SIZE, train_test_split["test"])
 
     checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpoint_filepath,
-                                                    monitor='val_accuracy',
+                                                    monitor="val_CategoricalAccuracy",
                                                     verbose=1,
                                                     save_best_only=True,
-                                                    mode='max')
+                                                    mode="max")
     callbacks_list = [checkpoint]
 
-    EXPERIMENT.log_parameters({
-        "batch_size": BATCH_SIZE,
-        "epochs": EPOCHS
-    })
+    if EXPERIMENT:
+        EXPERIMENT.log_parameters({
+            "batch_size": BATCH_SIZE,
+            "epochs": EPOCHS,
+            #TODO: CHANGE TO MAKE DYNAMIC
+            "class_weights": [1, 175, 8, 9, 137, 140, 34, 44]
+        })
 
-    with EXPERIMENT.train():
-        model.fit_generator(generator=training_generator,
-                            epochs=EPOCHS,
-                            steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
-                            validation_steps=len(train_test_split["test"]) // BATCH_SIZE,
-                            validation_data=validation_generator,
-                            use_multiprocessing=True,
-                            workers=6,
-                            callbacks=callbacks_list)
+        with EXPERIMENT.train():
+            model.fit_generator(generator=training_generator,
+                                epochs=EPOCHS,
+                                steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
+                                validation_steps=len(train_test_split["test"]) // BATCH_SIZE,
+                                validation_data=validation_generator,
+                                use_multiprocessing=True,
+                                workers=6,
+                                callbacks=callbacks_list)
+                                #class_weight=CLASS_WEIGHT)
 
 if __name__ == "__main__":
     sys.exit(main())

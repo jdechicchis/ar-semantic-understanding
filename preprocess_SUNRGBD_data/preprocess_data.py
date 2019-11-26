@@ -161,7 +161,7 @@ class Preprocessor():
                 for w in range(0, image_width):
                     if mask[h][w]:
                         segmented_image[h][w] = color
-                        segmentation_data[w][h] = class_id
+                        segmentation_data[h][w] = class_id
 
         image_name = data_id + ".jpg"
         annotation_name = data_id + ".json"
