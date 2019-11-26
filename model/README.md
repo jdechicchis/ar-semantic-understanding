@@ -20,6 +20,7 @@ Semantic understanding for augmented reality (AR) applications.
 10335 total 224(w) x 224(h) JPEG images. Class name to ID mapping are in `classes.json`.
 
 Pixel-level class instances:
+
 | Class              | ID | # of Instances | % of Instances |
 |--------------------|----|----------------|----------------|
 | Unknown            | 0  | 397550845      | 76.66%         |
