@@ -1,10 +1,6 @@
-# AR Semantic Understanding
+# Model and Data
 
-Semantic understanding for augmented reality (AR) applications.
-
-## Model and Data
-
-### Model Classes
+## Model Classes
 
 | Class              | ID | Approx # of Instances |
 |--------------------|----|-----------------------|
@@ -32,7 +28,7 @@ Pixel-level class instances:
 | Window             | 6  | 11808008       | 2.28%          |
 | Door               | 7  | 9091878        | 1.75%          |
 
-### Data Directory
+## Data Directory
 
 The data directory is set up as follows:
 
@@ -54,7 +50,7 @@ data -
            |---- 10335.jpg
 ```
 
-### Annotation Format
+## Annotation Format
 
 Annotation files contains a dictionary with the following keys and values:
 
@@ -75,7 +71,7 @@ Training class weights (based off overall pixel-level class instances):
 | Window             | 6  | 34     |
 | Door               | 7  | 44     |
 
-### Train/Test Split
+## Train/Test Split
 
 Data was randomly split into train (9300 images) and test (1035 images) set (90/10 split). The split is in `train_test_data_split.json`.
 
