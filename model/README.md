@@ -63,6 +63,7 @@ Annotation files contains a dictionary with the following keys and values:
 - `annotation`: A 224(w) x 224(h) array indexed by [h][w] where each entry is the class ID of the corresponding pixel.
 
 Training class weights (based off overall pixel-level class instances):
+
 | Class              | ID | Weight |
 |--------------------|----|--------|
 | Unknown            | 0  | 1      |
@@ -79,6 +80,7 @@ Training class weights (based off overall pixel-level class instances):
 Data was randomly split into train (9300 images) and test (1035 images) set (90/10 split). The split is in `train_test_data_split.json`.
 
 Train set pixel-level class instances:
+
 | Class              | ID | # of Instances | % of Instances |
 |--------------------|----|----------------|----------------|
 | Unknown            | 0  | 357865897      | 76.69%         |
@@ -91,6 +93,7 @@ Train set pixel-level class instances:
 | Door               | 7  | 8179869        | 1.75%          |
 
 Test set pixel-level class instances:
+
 | Class              | ID | # of Instances | % of Instances |
 |--------------------|----|----------------|----------------|
 | Unknown            | 0  | 39684948       | 76.42%         |
