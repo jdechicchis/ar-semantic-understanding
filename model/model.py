@@ -204,13 +204,14 @@ def main():
     """
     Model setup and training.
     """
-    checkpoint_filepath = "./model/weights.best.hdf5"
+    checkpoint_filepath = "./checkpoints/weights.best.hdf5"
 
     #00004
-    image_file = Image.open("./data/images/" + "07400" + ".jpg")
+    #07400
+    image_file = Image.open("./data/images/" + "00100" + ".jpg")
     image = np.asarray(image_file)
     image = image / 255.0
-    annotation_file = open("./data/annotations/" + "07400" + ".json", "r")
+    annotation_file = open("./data/annotations/" + "00100" + ".json", "r")
     annotation_data = json.load(annotation_file)
     label = np.array(annotation_data["annotation"])
     image_file.close()
@@ -232,7 +233,7 @@ def main():
 
     model = unet_model(NUM_CLASSES)
 
-    model.load_weights("./model/experiment_c0bb65e10/weights.best.hdf5")
+    model.load_weights("./checkpoints/experiment_c0bb65e10/weights.best.hdf5")
 
     model.compile(optimizer="adam",
                   loss=weighted_categorical_crossentropy,#"categorical_crossentropy", #sparse_categorical_crossentropy
