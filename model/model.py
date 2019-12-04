@@ -29,17 +29,8 @@ HEIGHT = 224
 # Training parameters
 BATCH_SIZE = 16
 EPOCHS = 20
-CLASS_WEIGHT = {
-    0: 1,
-    1: 175,
-    2: 8,
-    3: 9,
-    4: 137,
-    5: 140,
-    6: 34,
-    7: 44
-}
-CLASS_WEIGHTS = K.variable(np.array([1, 175, 8, 9, 137, 140, 34, 44]))
+CLASS_WEIGHTS_ARRAY = [1, 175, 8, 9, 137, 140, 34, 44]
+CLASS_WEIGHTS = K.variable(np.array(CLASS_WEIGHTS_ARRAY))
 
 class DataGenerator(tf.keras.utils.Sequence):
     """
@@ -178,20 +169,14 @@ def create_mask(pred_mask):
 
 def custom_f1_score(y_true, y_pred):
     """
-    print(type(y_true))
-    print(type(y_pred))
-    print(y_true.shape)
-    print(y_pred.shape)
-    return 0#f1_score(y_true, y_pred, average='weighted')
-    y_true = K.flatten(y_true)
-    y_pred = K.flatten(y_pred)
+    Calculate f1-score
     """
-    #print("HERE!")
-    #y_true = tf.keras.utils.to_categorical(y_true, num_classes=NUM_CLASSES)
-    #print(type(y_true))
     return 2 * (K.sum(y_true * y_pred)+ K.epsilon()) / (K.sum(y_true) + K.sum(y_pred) + K.epsilon())
 
-def weighted_categorical_crossentropy(y_true,y_pred):
+def weighted_categorical_crossentropy(y_true, y_pred):
+    """
+    Calculated weighted categorical crossentropy.
+    """
     y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
     # clip to prevent NaN's and Inf's
     y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
@@ -267,8 +252,7 @@ def main():
         EXPERIMENT.log_parameters({
             "batch_size": BATCH_SIZE,
             "epochs": EPOCHS,
-            #TODO: CHANGE TO MAKE DYNAMIC
-            "class_weights": [1, 175, 8, 9, 137, 140, 34, 44]
+            "class_weights": CLASS_WEIGHTS_ARRAY
         })
 
         with EXPERIMENT.train():
@@ -280,7 +264,6 @@ def main():
                                 use_multiprocessing=True,
                                 workers=6,
                                 callbacks=callbacks_list)
-                                #class_weight=CLASS_WEIGHT)
 
 if __name__ == "__main__":
     sys.exit(main())
