@@ -28,6 +28,13 @@ Pixel-level class instances:
 | Window             | 6  | 11808008       | 2.28%          |
 | Door               | 7  | 9091878        | 1.75%          |
 
+Data mean and standard deviation:
+
+|                    | Red      | Green    | Blue     |
+|--------------------|----------|----------|----------|
+| Mean               | 0.491024 | 0.455375 | 0.427466 |
+| Standard Deviation | 0.262995 | 0.267877 | 0.270293 |
+
 ## Data Directory
 
 The data directory is set up as follows:
