@@ -63,7 +63,7 @@ Annotation files contains a dictionary with the following keys and values:
 
 - `id`: ID of annotation (string)
 - `image_name`: Name of image associated with the annotation (string)
-- `annotation`: A 224(w) x 224(h) array indexed by [h][w] where each entry is the class ID of the corresponding pixel.
+- `annotation`: A 224(h) x 224(w) array indexed by [h][w] where each entry is the class ID of the corresponding pixel.
 
 Training class weights (based off overall pixel-level class instances):
 
