@@ -1,0 +1,6 @@
+Pillow
+comet_ml
+matplotlib
+pydot
+graphviz
+git+https://github.com/tensorflow/examples.git
