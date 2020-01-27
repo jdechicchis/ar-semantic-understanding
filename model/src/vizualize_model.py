@@ -11,12 +11,23 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from matplotlib.widgets import Button
 
 from models.unet import unet_model
 
 # Number of classes per pixel
 NUM_CLASSES = 8
+CLASS_LABELS_AND_COLORS = [
+    {"color": [255, 255, 255], "label": "Unknown"},
+    {"color": [0, 255, 255], "label": "Bookshelf"},
+    {"color": [255, 0, 255], "label": "Desk/Table/Counter"},
+    {"color": [255, 255, 0], "label": "Chair"},
+    {"color": [255, 0, 0], "label": "Book/Paper"},
+    {"color": [0, 255, 0], "label": "Picture"},
+    {"color": [0, 0, 255], "label": "Window"},
+    {"color": [0, 0, 0], "label": "Door"}
+]
 
 # Width and height of input image
 WIDTH = 224
@@ -36,28 +47,48 @@ def display(display_list):
         plt.imshow(tf.keras.preprocessing.image.array_to_img(display_item))
         plt.axis("off")
 
-    close_button_axis = plt.axes([0.7, 0.05, 0.1, 0.075])
-    close_button = Button(close_button_axis, "Close")
+    next_button_axis = plt.axes([0.7, 0.05, 0.1, 0.075])
+    next_button = Button(next_button_axis, "Next")
 
-    def close_plot(_):
+    def next_plot(_):
         """
-        Close the plot.
+        Close the plot to show next plot.
         """
         plt.close()
 
-    close_button.on_clicked(close_plot)
+    next_button.on_clicked(next_plot)
+
+    exit_button_axis = plt.axes([0.85, 0.05, 0.1, 0.075])
+    exit_button = Button(exit_button_axis, "Exit")
+
+    def exit_plot(_):
+        """
+        Close the plot and exit.
+        """
+        plt.close()
+        sys.exit(0)
+
+    exit_button.on_clicked(exit_plot)
+
+    legend_pathes = []
+    for label_and_color in CLASS_LABELS_AND_COLORS:
+        patch = patches.Patch(color=[c/255 for c in label_and_color["color"]], label=label_and_color["label"])
+        legend_pathes.append(patch)
+    plt.legend(handles=legend_pathes, bbox_to_anchor=(-2.0, 2.5))
 
     plt.show()
 
-    should_continue = input("Do you want to continue? [y/n] ")
-    if should_continue is "n":
-        sys.exit(0)
+    #should_continue = input("Do you want to continue? [y/n] ")
+    #if should_continue is "n":
+    #    sys.exit(0)
 
 def create_mask(pred_mask):
     """
     Get the mask from a prediction.
     """
     pred_mask = np.argmax(pred_mask, axis=3)
+    print(pred_mask)
+    print(np.shape(pred_mask))
     return pred_mask[0]
 
 def main():
@@ -95,19 +126,19 @@ def main():
         label = np.array(annotation_data["annotation"])
         image_file.close()
         annotation_file.close()
-        mask = np.zeros((224, 224, 1), dtype=np.int32)
+        mask = np.zeros((224, 224, 3), dtype=np.int32)
 
         for w in range(0, 224):
             for h in range(0, 224):
-                mask[h][w] = [label[h][w]]
+                mask[h][w] = CLASS_LABELS_AND_COLORS[label[h][w]]["color"]
 
         pred_mask = model.predict(np.stack([image], axis=0))
         pred_mask = create_mask(pred_mask)
 
-        pred_mask_new = np.zeros((224, 224, 1), dtype=np.int32)
+        pred_mask_new = np.zeros((224, 224, 3), dtype=np.int32)
         for h in range(0, 224):
             for w in range(0, 224):
-                pred_mask_new[h][w] = [pred_mask[h][w]]
+                pred_mask_new[h][w] = CLASS_LABELS_AND_COLORS[pred_mask[h][w]]["color"]
         display([image, mask, pred_mask_new])
 
 if __name__ == "__main__":
