@@ -34,12 +34,13 @@ class DataGenerator(tf.keras.utils.Sequence):
     """
     Custom data generator to provide data for training/testing.
     """
-    def __init__(self, batch_size, data_ids, data_path):
+    def __init__(self, batch_size, data_ids, data_path, log=False):
         self.__batch_size = batch_size
         self.__data_ids = data_ids
         self.__current_index = 0
         self.__images_path = os.path.join(data_path, "images")
         self.__annotations_path = os.path.join(data_path, "annotations")
+        self.__log = log
 
     def __len__(self):
         """
@@ -53,6 +54,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         """
         data = []
         labels = []
+        if self.__log:
+            print("DataGenerator __getitem__ for index: ", index)
         for _ in range(0, self.__batch_size):
             sample, label = self.__load_data(self.__data_ids[self.__current_index])
             data.append(sample)
@@ -137,6 +140,11 @@ def main():
                                 project_name="ar-semantic-understanding", workspace="jdechicchis")
 
     if args.gpu:
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        print("GPUs: ", gpus)
+        tf.config.experimental.set_memory_growth(gpus[0], True)
+        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
         with tf.device("/gpu:0"):
             model = unet_model(WIDTH, HEIGHT, NUM_CLASSES)
     else:
@@ -160,7 +168,7 @@ def main():
     validation_generator = DataGenerator(BATCH_SIZE, train_test_split["test"], args.data_path)
 
     checkpoint = tf.keras.callbacks.ModelCheckpoint(args.checkpoint_file,
-                                                    monitor="val_f1_score",
+                                                    monitor="val_accuracy",
                                                     verbose=1,
                                                     save_best_only=True,
                                                     mode="max")

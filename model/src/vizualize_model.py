@@ -64,6 +64,11 @@ def main():
     """
     Model setup and training.
     """
+    print(
+        "#####################################\n"
+        "# WARNING: May not work with TF GPU #\n"
+        "#####################################\n\n"
+    )
 
     parser = argparse.ArgumentParser(description="Train model on SUN RGB-D data.")
     parser.add_argument("data_path", type=str, help="Path to the data.")
