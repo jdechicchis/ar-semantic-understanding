@@ -78,17 +78,11 @@ def display(display_list):
 
     plt.show()
 
-    #should_continue = input("Do you want to continue? [y/n] ")
-    #if should_continue is "n":
-    #    sys.exit(0)
-
 def create_mask(pred_mask):
     """
     Get the mask from a prediction.
     """
     pred_mask = np.argmax(pred_mask, axis=3)
-    print(pred_mask)
-    print(np.shape(pred_mask))
     return pred_mask[0]
 
 def main():
@@ -115,7 +109,14 @@ def main():
     images_path = os.path.join(args.data_path, "images")
     annotations_path = os.path.join(args.data_path, "annotations")
 
+    invalid_images_file = open(os.path.join(args.data_path, "invalid_images.json"))
+    invalid_images = json.load(invalid_images_file)
+
     data_ids_array = [f"{i:05}" for i in range(0, 10335)]
+
+    for invalid in invalid_images:
+        data_ids_array.remove(invalid)
+
     random.shuffle(data_ids_array)
     for data_id in data_ids_array:
         image_file = Image.open(os.path.join(images_path, data_id + ".jpg"))

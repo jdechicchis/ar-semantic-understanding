@@ -2,8 +2,21 @@
 Custom evaluation metrics for model.
 """
 
+import tensorflow as tf
 import numpy as np
 from tensorflow.python.keras import backend as K
+
+def categorical_crossentropy_with_sample_weights(sample_weights):
+    loss = tf.keras.losses.CategoricalCrossentropy()
+    def apply(y_true, y_pred):
+        return loss(y_true, y_pred, sample_weight=sample_weights)
+    return apply
+
+def categorical_accuracy_with_sample_weights(sample_weights):
+    metric = tf.keras.metrics.CategoricalAccuracy()
+    def apply(y_true, y_pred):
+        return metric(y_true, y_pred, sample_weight=sample_weights)
+    return apply
 
 def custom_f1_score(y_true, y_pred):
     """
@@ -13,7 +26,7 @@ def custom_f1_score(y_true, y_pred):
 
 def weighted_categorical_crossentropy(class_weights):
     """
-    Calculated weighted categorical crossentropy.
+    Calculate weighted categorical crossentropy.
     """
     class_weights = K.variable(np.array(class_weights))
 
@@ -65,24 +78,31 @@ def f1_score(y_true, y_pred):
     recall = calculate_recall(y_true, y_pred)
     return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
 
-def balanced_accuracy(y_true, y_pred):
+#@tf.function
+def balanced_accuracy():
     """
-    Calculate balanced_accuracy.
+    Calculate balanced_accuracy = (TPR + TNR) / 2.
     """
-    #TODO: implement
-    #y_true_new = K.argmax(y_true)
-    #y_pred_new = K.argmax(y_pred)
-    #true_positives = K.sum(y_true_new == y_pred_new)
-    #true_negatives = K.sum(y_true_new != y_pred_new)
-    #print(y_true)
-    #print(y_true.numpy())
-    #true_positive_rate = calculate_recall(y_true, y_pred)
-    #true_negative_rate = calculate_true_negative_rate(y_true, y_pred)
-    #print("true_positive_rate: {}".format(true_positive_rate))
-    #print("true_negative_rate: {}".format(true_negative_rate))
-    #t = K.eval(y_true)
-    #print(np.shape(t))
-    return 0#(true_positive_rate + true_negative_rate) / 2
+    true_positives_metric = tf.keras.metrics.TruePositives()
+    false_positives_metric = tf.keras.metrics.FalsePositives()
+    true_negatives_metric = tf.keras.metrics.TrueNegatives()
+    false_negatives_metric = tf.keras.metrics.FalseNegatives()
+    def custom_balanced_accuracy(y_true, y_pred):
+        true_positives = true_positives_metric(y_true, y_pred)
+        false_positives = false_positives_metric(y_true, y_pred)
+        true_negatives = true_negatives_metric(y_true, y_pred)
+        false_negatives = false_negatives_metric(y_true, y_pred)
+
+        true_positive_rate = true_positives / (true_positives + false_negatives)
+        true_negative_rate = true_negatives / (false_positives + true_negatives)
+
+        #recall = tf.keras.metrics.Recall(y_true, y_pred)
+
+    #assert true_positive_rate == recall, "TPR and recall must match!"
+
+        return (true_positive_rate + true_negative_rate) / 2
+
+    return custom_balanced_accuracy
 
 def iou(y_true, y_pred):
     """

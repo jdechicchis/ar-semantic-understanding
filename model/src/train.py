@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from models.unet import unet_model
 
 from metrics import weighted_categorical_crossentropy
-from metrics import custom_f1_score
+from metrics import custom_f1_score, balanced_accuracy
 
 # Number of classes per pixel
 NUM_CLASSES = 8
@@ -28,7 +28,17 @@ HEIGHT = 224
 # Training parameters
 BATCH_SIZE = 16
 EPOCHS = 20
-CLASS_WEIGHTS = [1, 175, 8, 9, 137, 140, 34, 44]
+#CLASS_WEIGHTS = [1, 175, 8, 9, 137, 140, 34, 44]
+CLASS_WEIGHTS = [
+    0.14385866807,
+    0.90557223126,
+    0.72059989577,
+    0.66989873421,
+    3.53100851804,
+    2.53715235032,
+    1.11641301038,
+    1.18609654356
+]
 
 class DataGenerator(tf.keras.utils.Sequence):
     """
@@ -154,9 +164,16 @@ def main():
     if args.load_weights:
         model.load_weights(args.checkpoint_file)
 
+    # accuracy is CategoricalAccuracy here
     model.compile(optimizer="adam",
                   loss=weighted_categorical_crossentropy(CLASS_WEIGHTS),
-                  metrics=["accuracy", "CategoricalAccuracy", custom_f1_score])
+                  #loss=categorical_crossentropy_with_sample_weights(CLASS_WEIGHTS),
+                  metrics=["accuracy",
+                           balanced_accuracy(),
+                           #tf.keras.metrics.CategoricalAccuracy(),
+                           #tf.keras.metrics.AUC(),
+                           #tf.keras.metrics.MeanIoU(num_classes=8),
+                           custom_f1_score])
 
     if args.plot_model:
         tf.keras.utils.plot_model(model, show_shapes=True)
@@ -175,15 +192,26 @@ def main():
     callbacks_list = [checkpoint]
 
     def model_fit():
+        """
         model.fit_generator(generator=training_generator,
                             epochs=EPOCHS,
                             steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
                             validation_steps=len(train_test_split["test"]) // BATCH_SIZE,
                             validation_data=validation_generator,
-                            use_multiprocessing=True,
+                            use_multiprocessing=False,
                             workers=6,
                             callbacks=callbacks_list)
-
+        """
+        model.fit(x=training_generator,
+                  epochs=EPOCHS,
+                  steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
+                  validation_steps=len(train_test_split["test"]) // BATCH_SIZE,
+                  validation_data=validation_generator,
+                  #class_weights=CLASS_WEIGHTS,
+                  #use_multiprocessing=True,
+                  #workers=6,
+                  callbacks=callbacks_list)
+        # TODO: Try class_weight
 
     if args.use_comet:
         experiment.log_parameters({
