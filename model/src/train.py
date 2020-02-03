@@ -81,6 +81,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         """
         image_file = Image.open(os.path.join(self.__images_path, data_id + ".jpg"))
         image = np.asarray(image_file)
+        # TODO: Normalize
         image = image / 255.0
         annotation_file = open(os.path.join(self.__annotations_path, data_id + ".json"), "r")
         annotation_data = json.load(annotation_file)
