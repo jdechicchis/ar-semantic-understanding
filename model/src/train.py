@@ -11,7 +11,6 @@ from PIL import Image
 import numpy as np
 from comet_ml import Experiment
 import tensorflow as tf
-import matplotlib.pyplot as plt
 
 from models.unet import unet_model
 
@@ -40,17 +39,24 @@ CLASS_WEIGHTS = [
     1.18609654356
 ]
 
+DATA_MEAN = [0.491024, 0.455375, 0.427466]
+DATA_STD = [0.262995, 0.267877, 0.270293]
+
 class DataGenerator(tf.keras.utils.Sequence):
     """
     Custom data generator to provide data for training/testing.
     """
-    def __init__(self, batch_size, data_ids, data_path, log=False):
+    def __init__(self, batch_size, data_ids, data_path, normalize, log=False):
         self.__batch_size = batch_size
         self.__data_ids = data_ids
         self.__current_index = 0
         self.__images_path = os.path.join(data_path, "images")
         self.__annotations_path = os.path.join(data_path, "annotations")
+        self.__normalize = normalize
         self.__log = log
+
+        self.__mean = np.array(DATA_MEAN)
+        self.__std = np.array(DATA_STD)
 
     def __len__(self):
         """
@@ -81,8 +87,11 @@ class DataGenerator(tf.keras.utils.Sequence):
         """
         image_file = Image.open(os.path.join(self.__images_path, data_id + ".jpg"))
         image = np.asarray(image_file)
-        # TODO: Normalize
         image = image / 255.0
+
+        if self.__normalize:
+            image = (image - self.__mean) / self.__std
+
         annotation_file = open(os.path.join(self.__annotations_path, data_id + ".json"), "r")
         annotation_data = json.load(annotation_file)
         label = np.array(annotation_data["annotation"])
@@ -106,33 +115,6 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         return image, new_label
 
-def display(display_list):
-    """
-    Display image, true mask, and predicted mask.
-    """
-    plt.figure(figsize=(15, 5))
-
-    title = ['Input Image', 'True Mask', 'Predicted Mask']
-
-    for i, display_item in enumerate(display_list):
-    #for i in range(0, len(display_list)):
-        plt.subplot(1, len(display_list), i+1)
-        plt.title(title[i])
-        plt.imshow(tf.keras.preprocessing.image.array_to_img(display_item))
-        plt.axis('off')
-    plt.show()
-
-    should_continue = input("Do you want to continue? [y/n] ")
-    if should_continue is "n":
-        sys.exit(0)
-
-def create_mask(pred_mask):
-    """
-    Get the mask from a prediction.
-    """
-    pred_mask = np.argmax(pred_mask, axis=3)
-    return pred_mask[0]
-
 def main():
     """
     Model setup and training.
@@ -144,6 +126,7 @@ def main():
     parser.add_argument("--gpu", action="store_true", help="Use GPU")
     parser.add_argument("--plot_model", action="store_true", help="Plot the model architecture.")
     parser.add_argument("--use_comet", action="store_true", help="Log experiment to Comet ML.")
+    parser.add_argument("--normalize", action="store_true", help="Normalize input.")
     args = parser.parse_args()
 
     if args.use_comet:
@@ -182,8 +165,8 @@ def main():
     train_test_file = open(os.path.join(args.data_path, "train_test_data_split.json"), "r")
     train_test_split = json.load(train_test_file)
 
-    training_generator = DataGenerator(BATCH_SIZE, train_test_split["train"], args.data_path)
-    validation_generator = DataGenerator(BATCH_SIZE, train_test_split["test"], args.data_path)
+    training_generator = DataGenerator(BATCH_SIZE, train_test_split["train"], args.data_path, args.normalize)
+    validation_generator = DataGenerator(BATCH_SIZE, train_test_split["test"], args.data_path, args.normalize)
 
     checkpoint = tf.keras.callbacks.ModelCheckpoint(args.checkpoint_file,
                                                     monitor="val_accuracy",
@@ -218,7 +201,8 @@ def main():
         experiment.log_parameters({
             "batch_size": BATCH_SIZE,
             "epochs": EPOCHS,
-            "class_weights": CLASS_WEIGHTS
+            "class_weights": CLASS_WEIGHTS,
+            "normalize": args.normalize
         })
 
         with experiment.train():

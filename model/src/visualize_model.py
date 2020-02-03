@@ -29,22 +29,28 @@ CLASS_LABELS_AND_COLORS = [
     {"color": [0, 0, 0], "label": "Door"}
 ]
 
+DATA_MEAN = [0.491024, 0.455375, 0.427466]
+DATA_STD = [0.262995, 0.267877, 0.270293]
+
 # Width and height of input image
 WIDTH = 224
 HEIGHT = 224
 
-def display(display_list):
+def display(display_list, normalize):
     """
     Display image, true mask, and predicted mask.
     """
     plt.figure(figsize=(15, 5))
 
-    title = ["Input Image", "True Mask", "Predicted Mask"]
+    if normalize:
+        title = ["Input Image", "Normalized Image", "True Mask", "Predicted Mask"]
+    else:
+        title = ["Input Image", "True Mask", "Predicted Mask"]
 
     for i, display_item in enumerate(display_list):
         plt.subplot(1, len(display_list), i+1)
         plt.title(title[i])
-        plt.imshow(tf.keras.preprocessing.image.array_to_img(display_item))
+        plt.imshow(display_item)
         plt.axis("off")
 
     next_button_axis = plt.axes([0.7, 0.05, 0.1, 0.075])
@@ -98,6 +104,7 @@ def main():
     parser = argparse.ArgumentParser(description="Train model on SUN RGB-D data.")
     parser.add_argument("data_path", type=str, help="Path to the data.")
     parser.add_argument("--checkpoint_file", type=str, help="Checkpoint file.")
+    parser.add_argument("--normalize", action="store_true", help="Normalize input.")
     args = parser.parse_args()
 
     with tf.device("/cpu:0"):
@@ -117,11 +124,16 @@ def main():
     for invalid in invalid_images:
         data_ids_array.remove(invalid)
 
+    mean = np.array(DATA_MEAN)
+    std = np.array(DATA_STD)
+
     random.shuffle(data_ids_array)
     for data_id in data_ids_array:
         image_file = Image.open(os.path.join(images_path, data_id + ".jpg"))
-        image = np.asarray(image_file)
-        image = image / 255.0
+        original_image = np.asarray(image_file)
+        original_image = original_image / 255.0
+        if args.normalize:
+            normalized_image = (original_image - mean) / std
         annotation_file = open(os.path.join(annotations_path, data_id + ".json"), "r")
         annotation_data = json.load(annotation_file)
         label = np.array(annotation_data["annotation"])
@@ -133,14 +145,21 @@ def main():
             for h in range(0, 224):
                 mask[h][w] = CLASS_LABELS_AND_COLORS[label[h][w]]["color"]
 
-        pred_mask = model.predict(np.stack([image], axis=0))
+        if args.normalize:
+            pred_mask = model.predict(np.stack([normalized_image], axis=0))
+        else:
+            pred_mask = model.predict(np.stack([original_image], axis=0))
         pred_mask = create_mask(pred_mask)
 
         pred_mask_new = np.zeros((224, 224, 3), dtype=np.int32)
         for h in range(0, 224):
             for w in range(0, 224):
                 pred_mask_new[h][w] = CLASS_LABELS_AND_COLORS[pred_mask[h][w]]["color"]
-        display([image, mask, pred_mask_new])
+
+        if args.normalize:
+            display([original_image, normalized_image, mask, pred_mask_new], args.normalize)
+        else:
+            display([original_image, mask, pred_mask_new], args.normalize)
 
 if __name__ == "__main__":
     sys.exit(main())
