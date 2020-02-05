@@ -15,6 +15,7 @@ import matplotlib.patches as patches
 from matplotlib.widgets import Button
 
 from models.unet import unet_model
+from models.segnet import segnet_model
 
 # Number of classes per pixel
 NUM_CLASSES = 8
@@ -108,7 +109,7 @@ def main():
     args = parser.parse_args()
 
     with tf.device("/cpu:0"):
-        model = unet_model(WIDTH, HEIGHT, NUM_CLASSES)
+        model = segnet_model(WIDTH, HEIGHT, NUM_CLASSES)
 
     if args.checkpoint_file:
         model.load_weights(args.checkpoint_file)

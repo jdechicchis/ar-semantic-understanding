@@ -13,9 +13,13 @@ from comet_ml import Experiment
 import tensorflow as tf
 
 from models.unet import unet_model
+from models.segnet import segnet_model
 
 from metrics import weighted_categorical_crossentropy
-from metrics import custom_f1_score, balanced_accuracy
+from metrics import custom_f1_score, balanced_accuracy, f1_score
+
+# Model
+MODEL = segnet_model
 
 # Number of classes per pixel
 NUM_CLASSES = 8
@@ -25,7 +29,7 @@ WIDTH = 224
 HEIGHT = 224
 
 # Training parameters
-BATCH_SIZE = 16
+BATCH_SIZE = 4
 EPOCHS = 20
 #CLASS_WEIGHTS = [1, 175, 8, 9, 137, 140, 34, 44]
 CLASS_WEIGHTS = [
@@ -140,10 +144,10 @@ def main():
         logical_gpus = tf.config.experimental.list_logical_devices('GPU')
         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
         with tf.device("/gpu:0"):
-            model = unet_model(WIDTH, HEIGHT, NUM_CLASSES)
+            model = MODEL(WIDTH, HEIGHT, NUM_CLASSES)
     else:
         with tf.device("/cpu:0"):
-            model = unet_model(WIDTH, HEIGHT, NUM_CLASSES)
+            model = MODEL(WIDTH, HEIGHT, NUM_CLASSES)
 
     if args.load_weights:
         model.load_weights(args.checkpoint_file)
@@ -157,7 +161,8 @@ def main():
                            #tf.keras.metrics.CategoricalAccuracy(),
                            #tf.keras.metrics.AUC(),
                            #tf.keras.metrics.MeanIoU(num_classes=8),
-                           custom_f1_score])
+                           custom_f1_score,
+                           f1_score()])
 
     if args.plot_model:
         tf.keras.utils.plot_model(model, show_shapes=True)
@@ -176,16 +181,6 @@ def main():
     callbacks_list = [checkpoint]
 
     def model_fit():
-        """
-        model.fit_generator(generator=training_generator,
-                            epochs=EPOCHS,
-                            steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
-                            validation_steps=len(train_test_split["test"]) // BATCH_SIZE,
-                            validation_data=validation_generator,
-                            use_multiprocessing=False,
-                            workers=6,
-                            callbacks=callbacks_list)
-        """
         model.fit(x=training_generator,
                   epochs=EPOCHS,
                   steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
@@ -195,7 +190,6 @@ def main():
                   #use_multiprocessing=True,
                   #workers=6,
                   callbacks=callbacks_list)
-        # TODO: Try class_weight
 
     if args.use_comet:
         experiment.log_parameters({
