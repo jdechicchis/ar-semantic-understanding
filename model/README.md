@@ -66,29 +66,18 @@ Annotation files contains a dictionary with the following keys and values:
 - `image_name`: Name of image associated with the annotation (string)
 - `annotation`: A 224(h) x 224(w) array indexed by [h][w] where each entry is the class ID of the corresponding pixel.
 
-Training class weights (based off overall pixel-level class instances):
+Training class weights (based off overall pixel-level class instances) derived using the median frequency methods:
 
-0: 336035069/(9109*224*224) = 0.73522093437     => 0.10576790436/0.73522093437 = 0.14385866807
-1: 2273833/(388*224*224) = 0.11679676199        => 0.10576790436/0.11679676199 = 0.90557223126
-2: 47156248/(6403*224*224) = 0.14677757377      => 0.10576790436/0.14677757377 = 0.72059989577
-3: 44957965/(5675*224*224) = 0.15788640724      => 0.10576790436/0.15788640724 = 0.66989873421
-4: 2891720/(1924*224*224) = 0.0299540213        => 0.10576790436/0.0299540213  = 3.53100851804
-5: 2838463/(1357*224*224) = 0.04168764416       => 0.10576790436/0.04168764416 = 2.53715235032
-6: 11808008/(2484*224*224) = 0.09473904673      => 0.10576790436/0.09473904673 = 1.11641301038
-7: 9091878/(2032*224*224)= 0.08917309888        => 0.10576790436/0.08917309888 = 1.18609654356
-
-median = 0.10576790436
-
-| Class              | ID | Weight |
-|--------------------|----|--------|
-| Unknown            | 0  | 1      |
-| Bookshelf          | 1  | 175    |
-| Desk/Table/Counter | 2  | 8      |
-| Chair              | 3  | 9      |
-| Book/Paper         | 4  | 137    |
-| Picture            | 5  | 140    |
-| Window             | 6  | 34     |
-| Door               | 7  | 44     |
+| Class              | ID | Weight        |
+|--------------------|----|---------------|
+| Unknown            | 0  | 0.14385866807 |
+| Bookshelf          | 1  | 0.90557223126 |
+| Desk/Table/Counter | 2  | 0.72059989577 |
+| Chair              | 3  | 0.66989873421 |
+| Book/Paper         | 4  | 3.53100851804 |
+| Picture            | 5  | 2.53715235032 |
+| Window             | 6  | 1.11641301038 |
+| Door               | 7  | 1.18609654356 |
 
 ## Train/Test Split
 
