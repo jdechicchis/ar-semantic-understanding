@@ -12,11 +12,12 @@ import numpy as np
 from comet_ml import Experiment
 import tensorflow as tf
 
-from models.unet import unet_model
 from models.segnet import segnet_model
 
+from data_utils import horizontal_flip, rotate, horizontal_shear
+
 from metrics import weighted_categorical_crossentropy
-from metrics import custom_f1_score, balanced_accuracy, f1_score
+from metrics import balanced_accuracy, f1_score
 
 # Model
 MODEL = segnet_model
@@ -29,9 +30,8 @@ WIDTH = 224
 HEIGHT = 224
 
 # Training parameters
-BATCH_SIZE = 4
-EPOCHS = 20
-#CLASS_WEIGHTS = [1, 175, 8, 9, 137, 140, 34, 44]
+BATCH_SIZE = 2
+EPOCHS = 60
 CLASS_WEIGHTS = [
     0.14385866807,
     0.90557223126,
@@ -91,25 +91,36 @@ class DataGenerator(tf.keras.utils.Sequence):
         """
         image_file = Image.open(os.path.join(self.__images_path, data_id + ".jpg"))
         image = np.asarray(image_file)
-        image = image / 255.0
-
-        if self.__normalize:
-            image = (image - self.__mean) / self.__std
 
         annotation_file = open(os.path.join(self.__annotations_path, data_id + ".json"), "r")
         annotation_data = json.load(annotation_file)
-        label = np.array(annotation_data["annotation"])
+        label = np.array(annotation_data["annotation"], dtype=np.uint8)
+
         image_file.close()
         annotation_file.close()
 
+        image = Image.fromarray(image)
+        label = Image.fromarray(label)
+
         # Randomly horizontal flip
         if bool(random.getrandbits(1)):
-            image = np.flip(image, axis=1)
-            label = np.flip(label, axis=1)
+            image, label = horizontal_flip(image, label)
 
-        # TODO: Add crop
-        # TODO: Add shear
-        # TODO: Add rotate
+        if bool(random.getrandbits(1)):
+            # Randomly rotate
+            angle = random.uniform(-20.0, 20.0)
+            image, label = rotate(image, label, angle)
+        elif bool(random.getrandbits(1)):
+            # Randomly horizontally shear
+            amount = angle = random.uniform(-0.2, 0.2)
+            image, label = horizontal_shear(image, label, amount)
+
+        image = np.array(image)
+        label = np.array(label)
+
+        image = image / 255.0
+        if self.__normalize:
+            image = (image - self.__mean) / self.__std
 
         new_label = np.zeros((HEIGHT, WIDTH, NUM_CLASSES), dtype=np.float32)
 
@@ -152,16 +163,13 @@ def main():
     if args.load_weights:
         model.load_weights(args.checkpoint_file)
 
-    # accuracy is CategoricalAccuracy here
+    # "accuracy" is CategoricalAccuracy here
     model.compile(optimizer="adam",
                   loss=weighted_categorical_crossentropy(CLASS_WEIGHTS),
-                  #loss=categorical_crossentropy_with_sample_weights(CLASS_WEIGHTS),
                   metrics=["accuracy",
                            balanced_accuracy(),
-                           #tf.keras.metrics.CategoricalAccuracy(),
-                           #tf.keras.metrics.AUC(),
-                           #tf.keras.metrics.MeanIoU(num_classes=8),
-                           custom_f1_score,
+                           tf.keras.metrics.AUC(),
+                           tf.keras.metrics.MeanIoU(num_classes=8),
                            f1_score()])
 
     if args.plot_model:
@@ -186,9 +194,6 @@ def main():
                   steps_per_epoch=len(train_test_split["train"]) // BATCH_SIZE,
                   validation_steps=len(train_test_split["test"]) // BATCH_SIZE,
                   validation_data=validation_generator,
-                  #class_weights=CLASS_WEIGHTS,
-                  #use_multiprocessing=True,
-                  #workers=6,
                   callbacks=callbacks_list)
 
     if args.use_comet:

@@ -14,8 +14,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.widgets import Button
 
-from models.unet import unet_model
 from models.segnet import segnet_model
+
+# Model
+MODEL = segnet_model
 
 # Number of classes per pixel
 NUM_CLASSES = 8
@@ -109,7 +111,7 @@ def main():
     args = parser.parse_args()
 
     with tf.device("/cpu:0"):
-        model = segnet_model(WIDTH, HEIGHT, NUM_CLASSES)
+        model = MODEL(WIDTH, HEIGHT, NUM_CLASSES)
 
     if args.checkpoint_file:
         model.load_weights(args.checkpoint_file)
@@ -132,16 +134,18 @@ def main():
     for data_id in data_ids_array:
         image_file = Image.open(os.path.join(images_path, data_id + ".jpg"))
         original_image = np.asarray(image_file)
+
+        annotation_file = open(os.path.join(annotations_path, data_id + ".json"), "r")
+        annotation_data = json.load(annotation_file)
+        label = np.array(annotation_data["annotation"], dtype=np.uint8)
+        image_file.close()
+        annotation_file.close()
+
         original_image = original_image / 255.0
         if args.normalize:
             normalized_image = (original_image - mean) / std
-        annotation_file = open(os.path.join(annotations_path, data_id + ".json"), "r")
-        annotation_data = json.load(annotation_file)
-        label = np.array(annotation_data["annotation"])
-        image_file.close()
-        annotation_file.close()
-        mask = np.zeros((224, 224, 3), dtype=np.int32)
 
+        mask = np.zeros((224, 224, 3), dtype=np.int32)
         for w in range(0, 224):
             for h in range(0, 224):
                 mask[h][w] = CLASS_LABELS_AND_COLORS[label[h][w]]["color"]

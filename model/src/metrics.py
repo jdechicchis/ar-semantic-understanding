@@ -6,12 +6,6 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.python.keras import backend as K
 
-def custom_f1_score(y_true, y_pred):
-    """
-    Calculate f1-score.
-    """
-    return 2 * (K.sum(y_true * y_pred)+ K.epsilon()) / (K.sum(y_true) + K.sum(y_pred) + K.epsilon())
-
 def weighted_categorical_crossentropy(class_weights):
     """
     Calculate weighted categorical crossentropy.
@@ -35,12 +29,12 @@ def f1_score():
     precision = tf.keras.metrics.Precision()
     recall = tf.keras.metrics.Recall()
 
-    def calc_f1_score(y_true, y_pred):
+    def custom_f1_score(y_true, y_pred):
         p = precision(y_true, y_pred)
         r = recall(y_true, y_pred)
         return 2 * ((p * r) / (p + r + K.epsilon()))
 
-    return calc_f1_score
+    return custom_f1_score
 
 def balanced_accuracy():
     """
