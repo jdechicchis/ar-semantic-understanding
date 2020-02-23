@@ -234,6 +234,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Pixel: {fileID: 4905719185065930723, guid: 4a18b61cda5fc419ba5b1a384adaa772, type: 3}
+  Camera: {fileID: 1789041015}
+  ClassOneMaterial: {fileID: 2100000, guid: 8e14a71047420400dadc68556adc261c, type: 2}
+  ClassTwoMaterial: {fileID: 2100000, guid: d179ac20bad614f579684bed0d358ef6, type: 2}
+  ClassThreeMaterial: {fileID: 2100000, guid: 1f40ca0ef13b0426ea09668c18b80834, type: 2}
+  ClassFourMaterial: {fileID: 2100000, guid: a99cc3a2cb2614230ba0ff1a70d83305, type: 2}
+  ClassFiveMaterial: {fileID: 2100000, guid: bb7fa6f3b0170483f88840aea820348e, type: 2}
+  ClassSixMaterial: {fileID: 2100000, guid: 8df647092962642709e9734fb4ea3ffe, type: 2}
+  ClassSevenMaterial: {fileID: 2100000, guid: 062e6f4982f804316852fd7b3d468144, type: 2}
 --- !u!1 &99687660
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,6 +8,14 @@ using UnityEngine;
 public class CanvasControl : MonoBehaviour
 {
     public GameObject Pixel;
+    public Camera Camera;
+    public Material ClassOneMaterial;
+    public Material ClassTwoMaterial;
+    public Material ClassThreeMaterial;
+    public Material ClassFourMaterial;
+    public Material ClassFiveMaterial;
+    public Material ClassSixMaterial;
+    public Material ClassSevenMaterial;
 
     private List<GameObject> pixels;
 
@@ -20,7 +28,9 @@ public class CanvasControl : MonoBehaviour
     */
 
     // Pixel width/height/depth
-    private float pixelSize = 0.1f;
+    private float pixelSize = 0.01f;
+
+    private int numFrames = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +41,13 @@ public class CanvasControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (numFrames < 5) {
+            numFrames++;
+            return;
+        }
+
+        numFrames = 0;
+
         foreach (GameObject pixel in this.pixels) {
             Destroy(pixel);
         }
@@ -45,19 +62,53 @@ public class CanvasControl : MonoBehaviour
 
         int count = 0;
         foreach (PixelInfo pixelInfo in pixelLocations) {
-            if (count > 3) {
-                Debug.Log("break");
-                //break;
-            }
+            if (count % 5 == 0) {
+                
+            //if (pixelInfo.z > 0.5f) continue;
             GameObject pixel = Instantiate(this.Pixel);
             pixel.transform.SetParent(this.transform);
-            float x = pixelInfo.x / 224.0f;
-            float y = pixelInfo.y / 224.0f;
-            float z = pixelInfo.z + 2;
-            Debug.Log(string.Format("{0}, {1}, {2}", x, y, z));
-            pixel.transform.localPosition = new Vector3(x, y, z);
+            float x = ((pixelInfo.x - 122) / 224.0f - 0.1f) * 1.5f;
+            float y = ((pixelInfo.y - 122) / 224.0f + 0.1f) * 1.5f;
+            float z = (pixelInfo.z + 0.2f);
+            //pixel.transform.localPosition = this.Camera.ViewportToWorldPoint(new Vector3(0, 0, 2));
+            //pixel.transform.localPosition = new Vector3(0, 0, 1);
+            pixel.transform.localPosition = new Vector3(x, -y, z);
             pixel.transform.localScale = new Vector3(this.pixelSize, this.pixelSize, this.pixelSize);
+
+            //Color whateverColor = new Color(0.5f, 0.5f, 0.5f, 1);
+            MeshRenderer pixelRenderer = pixel.GetComponent<MeshRenderer>();
+            switch (pixelInfo.pixelClass) {
+                case 1:
+                    pixelRenderer.material = this.ClassOneMaterial;
+                    break;
+                case 2:
+                    pixelRenderer.material = this.ClassTwoMaterial;
+                    break;
+                case 3:
+                    pixelRenderer.material = this.ClassThreeMaterial;
+                    break;
+                case 4:
+                    pixelRenderer.material = this.ClassFourMaterial;
+                    break;
+                case 5:
+                    pixelRenderer.material = this.ClassFiveMaterial;
+                    break;
+                case 6:
+                    pixelRenderer.material = this.ClassSixMaterial;
+                    break;
+                case 7:
+                    pixelRenderer.material = this.ClassSevenMaterial;
+                    break;
+                default:
+                    Debug.Log("INVALID CLASS!!");
+                    break;
+            }
+            //Material newMaterial = new Material();
+            //newMaterial.color = whateverColor;
+            //pixelRenderer.material = this.ClassZeroMaterial;
+
             this.pixels.Add(pixel);
+            }
             count++;
         }
     }
@@ -86,13 +137,13 @@ public class PixelInfo {
     public float x;
     public float y;
     public float z;
-    public string color;
+    public int pixelClass;
 
-    public PixelInfo(float x, float y, float z, string color)
+    public PixelInfo(float x, float y, float z, int pixelClass)
     {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.color = color;
+        this.pixelClass = pixelClass;
     }
 }
