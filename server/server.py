@@ -3,7 +3,6 @@ Edge server.
 """
 
 import argparse
-import json
 import time
 from flask import Flask
 import _thread
@@ -53,12 +52,6 @@ def visualize():
             CAMERA_VISUALIZER.visualize(color_image, depth_data, pred_mask, CLASS_LABELS_AND_COLORS)
         time.sleep(0.5)
 
-def rgb_to_hex(r, g, b):
-    """
-    Convert RGB color to hex color.
-    """
-    return "#{0:02x}{1:02x}{2:02x}".format(r, g, b)
-
 @APP.route('/')
 def welcome_message():
     """
@@ -81,10 +74,14 @@ def mask():
     locations = []
     for h in range(0, 224):
         for w in range(0, 224):
-            color = pred_mask_colors[h][w]
-            color = rgb_to_hex(color[0], color[1], color[2])
-            if pred_mask[h][w] != 0:
-                locations.append({"x": float(w), "y": float(h), "z": float(depth_data[h][w]), "color": color})
+            if pred_mask[h][w] != 0 and depth_data[h][w] > 0:
+                locations.append(
+                    {
+                        "x": float(w), "y": float(h),
+                        "z": float(depth_data[h][w]),
+                        "pixelClass": int(pred_mask[h][w])
+                    }
+                )
 
     return {"locations": locations}
 
