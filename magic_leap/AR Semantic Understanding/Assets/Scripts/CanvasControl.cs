@@ -39,22 +39,36 @@ public class CanvasControl : MonoBehaviour
 
         PixelInfo[] pixelLocations = this.getMask();
 
+        Debug.Log("Updates");
+
+        Debug.Log(string.Format("Num labels: {0}", pixelLocations.Length));
+
+        int count = 0;
         foreach (PixelInfo pixelInfo in pixelLocations) {
+            if (count > 3) {
+                Debug.Log("break");
+                //break;
+            }
             GameObject pixel = Instantiate(this.Pixel);
             pixel.transform.SetParent(this.transform);
-            pixel.transform.localPosition = new Vector3(pixelInfo.x, pixelInfo.y, pixelInfo.z);
+            float x = pixelInfo.x / 224.0f;
+            float y = pixelInfo.y / 224.0f;
+            float z = pixelInfo.z + 2;
+            Debug.Log(string.Format("{0}, {1}, {2}", x, y, z));
+            pixel.transform.localPosition = new Vector3(x, y, z);
             pixel.transform.localScale = new Vector3(this.pixelSize, this.pixelSize, this.pixelSize);
             this.pixels.Add(pixel);
+            count++;
         }
     }
 
     private PixelInfo[] getMask()
     {
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:5000/mask");
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://10.197.154.206:5005/mask");
         HttpWebResponse response = (HttpWebResponse)request.GetResponse();
         StreamReader reader = new StreamReader(response.GetResponseStream());
         string jsonResponse = reader.ReadToEnd();
-        Debug.Log(jsonResponse);
+        //Debug.Log(jsonResponse);
         LocationData locationData = JsonUtility.FromJson<LocationData>(jsonResponse);
           
         return locationData.locations;
@@ -72,11 +86,13 @@ public class PixelInfo {
     public float x;
     public float y;
     public float z;
+    public string color;
 
-    public PixelInfo (float x, float y, float z)
+    public PixelInfo(float x, float y, float z, string color)
     {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.color = color;
     }
 }
