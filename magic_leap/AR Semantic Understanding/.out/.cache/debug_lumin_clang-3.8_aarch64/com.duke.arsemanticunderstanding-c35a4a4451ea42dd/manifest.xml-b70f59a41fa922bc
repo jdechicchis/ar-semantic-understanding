@@ -1,0 +1,9 @@
+<manifest xmlns:ml="magicleap" ml:developer_id="6c153a75-6151-47a6-9979-7224804c8420" ml:package="com.duke.arsemanticunderstanding" ml:version_code="1" ml:version_name="">
+  <application ml:min_api_level="4" ml:sdk_version="1.0" ml:visible_name="AR Semantic Understanding">
+    <component ml:binary_name="bin/Player.elf" ml:name=".fullscreen" ml:type="Fullscreen" ml:visible_name="AR Semantic Understanding">
+      <icon ml:model_folder="Icon/Model" ml:portal_folder="Icon/Portal" />
+    </component>
+    <uses-privilege ml:name="LowLatencyLightwear" />
+    <uses-privilege ml:name="LocalAreaNetwork" />
+  </application>
+</manifest>

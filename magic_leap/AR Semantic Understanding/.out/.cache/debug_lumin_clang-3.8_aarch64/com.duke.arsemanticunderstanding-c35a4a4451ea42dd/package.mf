@@ -1,0 +1,304 @@
+{
+ "entries": [
+  {
+   "compression": 8,
+   "hash": "5925de9f4d7b83c65d1fd7b25ced5f0bf8c27e73",
+   "pkgpath": "bin/libc++_shared.so",
+   "size": 976832,
+   "src": "/Users/joseph/MagicLeap/mlsdk/v0.22.0/lumin/stl/libc++/lib/libc++_shared.so",
+   "xfrm_flags": {
+    "signed": {
+     "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+    },
+    "taildata": {
+     "debuggable": true,
+     "sbox": "USER",
+     "version": 3
+    }
+   },
+   "xfrm_hash": "37e317a8e14fb152f5b4e9e97389b8f43deb3d0d",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/libc++_shared.so-983a6455da05edbb",
+   "xfrm_size": 977590
+  },
+  {
+   "compression": 8,
+   "hash": "8ec9f69e4499475a115281727d543938231e207a",
+   "pkgpath": "Data/Managed/Metadata/global-metadata.dat",
+   "size": 3879836,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Managed/Metadata/global-metadata.dat"
+  },
+  {
+   "compression": 8,
+   "hash": "66456eec89b31452beb79096e48f8cb5660c24c7",
+   "pkgpath": "bin/libil2cpp.so",
+   "size": 60076232,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Native/libil2cpp.so",
+   "xfrm_flags": {
+    "signed": {
+     "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+    },
+    "taildata": {
+     "debuggable": true,
+     "sbox": "USER",
+     "version": 3
+    }
+   },
+   "xfrm_hash": "ae98d579df97189cbc3e512d5f88c42fc88b87e9",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/libil2cpp.so-e52d8e9fa5ccea5b",
+   "xfrm_size": 60076990
+  },
+  {
+   "compression": 8,
+   "hash": "fa2b8ff146caf64688e7aa835af0034ca81b5505",
+   "pkgpath": "bin/AudioPluginMSASpatializer.so",
+   "size": 282448,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/AudioPluginMSASpatializer.so",
+   "xfrm_flags": {
+    "signed": {
+     "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+    },
+    "taildata": {
+     "debuggable": true,
+     "sbox": "USER",
+     "version": 3
+    }
+   },
+   "xfrm_hash": "9d917a27c26254764aeb2611093e0c6078cbd1b7",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/AudioPluginMSASpatializer.so-14727926ef3a9f08",
+   "xfrm_size": 283206
+  },
+  {
+   "compression": 8,
+   "hash": "e8c3afcee4c39da62c7e10b0edef033282795f0d",
+   "pkgpath": "bin/LuminMediaPlayer.dll",
+   "size": 68096,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/LuminMediaPlayer.dll"
+  },
+  {
+   "compression": 8,
+   "hash": "f3cb3d207b878b6d39597fb74aa70beedfbf75ce",
+   "pkgpath": "bin/LuminUnity.dll",
+   "size": 329216,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/LuminUnity.dll"
+  },
+  {
+   "compression": 8,
+   "hash": "b8ce049d2e85f27cc7346d7551d1853b20e78461",
+   "pkgpath": "bin/MSA.Runtime.dll",
+   "size": 22016,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/MSA.Runtime.dll"
+  },
+  {
+   "compression": 8,
+   "hash": "a71acc50817a0929bccc93cbe7619d57d25d1b17",
+   "pkgpath": "bin/UnityMagicLeap.so",
+   "size": 3077192,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/UnityMagicLeap.so",
+   "xfrm_flags": {
+    "signed": {
+     "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+    },
+    "taildata": {
+     "debuggable": true,
+     "sbox": "USER",
+     "version": 3
+    }
+   },
+   "xfrm_hash": "43340de51c2704993aa6755c1a80ffd28b5e9064",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/UnityMagicLeap.so-14727926ef3a9f08",
+   "xfrm_size": 3077950
+  },
+  {
+   "compression": 8,
+   "hash": "fbfa4a6aa20b14e0f60550676e5d34bebb99d46d",
+   "pkgpath": "bin/libml_camera_plugin.so",
+   "size": 14184,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/libml_camera_plugin.so",
+   "xfrm_flags": {
+    "signed": {
+     "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+    },
+    "taildata": {
+     "debuggable": true,
+     "sbox": "USER",
+     "version": 3
+    }
+   },
+   "xfrm_hash": "6eab32a28832ca42eb13f61b6dae3ac900e63c49",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/libml_camera_plugin.so-14727926ef3a9f08",
+   "xfrm_size": 14942
+  },
+  {
+   "compression": 8,
+   "hash": "88ac1047e0ac5686d703471c3115f719ca66a4e8",
+   "pkgpath": "bin/libml_mediaplayer_plugin.so",
+   "size": 67624,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/libml_mediaplayer_plugin.so",
+   "xfrm_flags": {
+    "signed": {
+     "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+    },
+    "taildata": {
+     "debuggable": true,
+     "sbox": "USER",
+     "version": 3
+    }
+   },
+   "xfrm_hash": "6598156b4dcadf8bfbd40b5cd27c39f911729b78",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/libml_mediaplayer_plugin.so-14727926ef3a9f08",
+   "xfrm_size": 68382
+  },
+  {
+   "compression": 8,
+   "hash": "984e4d2049ed5491b970ba15d1e8c8cadac0896e",
+   "pkgpath": "bin/nunit.framework.dll",
+   "size": 339968,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Plugins/nunit.framework.dll"
+  },
+  {
+   "compression": 8,
+   "hash": "e6124da6073b916e29e013cf3ae3f58a4c5fdb0e",
+   "pkgpath": "Data/Resources/mscorlib.dll-resources.dat",
+   "size": 337563,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Resources/mscorlib.dll-resources.dat"
+  },
+  {
+   "compression": 8,
+   "hash": "fa10859a933989c5961257c02d9f4fcf042044f1",
+   "pkgpath": "Data/Resources/unity default resources",
+   "size": 3689324,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Resources/unity default resources"
+  },
+  {
+   "compression": 8,
+   "hash": "6084911be9f29510d32f739ec15e631a27bb2842",
+   "pkgpath": "Data/Resources/unity_builtin_extra",
+   "size": 942768,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/Resources/unity_builtin_extra"
+  },
+  {
+   "compression": 8,
+   "hash": "778891100a8030ad6096db64784c6e5d67c28378",
+   "pkgpath": "Data/UnitySubsystems/UnityMagicLeap/UnitySubsystemsManifest.json",
+   "size": 417,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/UnitySubsystems/UnityMagicLeap/UnitySubsystemsManifest.json"
+  },
+  {
+   "compression": 8,
+   "hash": "f226dfc0f1097b18c77eb2198b6257be5b02a613",
+   "pkgpath": "Data/boot.config",
+   "size": 123,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/boot.config"
+  },
+  {
+   "compression": 8,
+   "hash": "6402e3f5f6242f0bcf86ac713fc30c7444e8a857",
+   "pkgpath": "Data/globalgamemanagers",
+   "size": 60256,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/globalgamemanagers"
+  },
+  {
+   "compression": 8,
+   "hash": "635546ea7368e080ea8ba86512d476d6c12820de",
+   "pkgpath": "Data/globalgamemanagers.assets",
+   "size": 84724,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/globalgamemanagers.assets"
+  },
+  {
+   "compression": 8,
+   "hash": "e45a67d405481ac550f403973f541994f438e3cd",
+   "pkgpath": "Data/level0",
+   "size": 7252,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/level0"
+  },
+  {
+   "compression": 8,
+   "hash": "371b8401e9a407c747cda306345c5a605060481f",
+   "pkgpath": "Data/level0.resS",
+   "size": 131232,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/level0.resS"
+  },
+  {
+   "compression": 8,
+   "hash": "7dabfb13ffb56e295af9737919a6dcb3d965928c",
+   "pkgpath": "Data/resources.assets",
+   "size": 553160,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/resources.assets"
+  },
+  {
+   "compression": 8,
+   "hash": "1d5e5447a0f0b085b695376c9fdb7738e07e4f23",
+   "pkgpath": "Data/resources.assets.resS",
+   "size": 360480,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/resources.assets.resS"
+  },
+  {
+   "compression": 8,
+   "hash": "72df8187e8b57e64fb93926431a0053987da4917",
+   "pkgpath": "Data/resources.resource",
+   "size": 5875136,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/resources.resource"
+  },
+  {
+   "compression": 8,
+   "hash": "00fa6ffca524ebf37fdff1f8710583593097c817",
+   "pkgpath": "Data/sharedassets0.assets",
+   "size": 393076,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/sharedassets0.assets"
+  },
+  {
+   "compression": 8,
+   "hash": "212a55cde33c5f7554c7b320c8994963a20c79db",
+   "pkgpath": "Data/sharedassets0.assets.resS",
+   "size": 1048576,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Data/sharedassets0.assets.resS"
+  },
+  {
+   "compression": 8,
+   "hash": "24f84a747cb793945d1e48a2eb5f8f7c9aa0c38c",
+   "pkgpath": "bin/Player.elf",
+   "size": 20719048,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/Player.elf",
+   "xfrm_flags": {
+    "signed": {
+     "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+    },
+    "taildata": {
+     "debuggable": true,
+     "sbox": "USER",
+     "version": 3
+    }
+   },
+   "xfrm_hash": "521b82648f100c44d66ba933aa72d0e009244632",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/Player.elf-b70f59a41fa922bc",
+   "xfrm_size": 20719806
+  },
+  {
+   "compression": 8,
+   "hash": "7589a241fb4f36b73cddba5394780ce1bc57a1e6",
+   "pkgpath": "manifest.xml",
+   "size": 619,
+   "src": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/Temp/StagingArea/manifest.xml",
+   "xfrm_flags": {
+    "manifest": {
+     "cert_hash": "4534093f5c3a3720113f5b7e6a6e9d5558118526",
+     "developer_id": "6c153a75-6151-47a6-9979-7224804c8420"
+    }
+   },
+   "xfrm_hash": "d9b5e0b883bfa77e8f8e791d6cd5f7ce9f385386",
+   "xfrm_path": "/Users/joseph/src/ar-semantic-understanding/magic_leap/AR Semantic Understanding/.out/.cache/debug_lumin_clang-3.8_aarch64/com.duke.arsemanticunderstanding-c35a4a4451ea42dd/manifest.xml-b70f59a41fa922bc",
+   "xfrm_size": 632
+  }
+ ],
+ "pkgflags": {
+  "signed": {
+   "cert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert"
+  },
+  "taildata": {
+   "debuggable": true,
+   "devcert": "/Users/joseph/Development/Magic_Leap/certs/labml.cert",
+   "sbox": "USER",
+   "version": 3
+  }
+ }
+}
