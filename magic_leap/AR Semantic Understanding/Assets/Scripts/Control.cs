@@ -9,7 +9,6 @@ public class Control : MonoBehaviour
 {
     public Mode WorldMode;
     public GameObject WorldCanvas;
-    public GameObject Earth;
     public GameObject Light;
     public GameObject Camera;
 

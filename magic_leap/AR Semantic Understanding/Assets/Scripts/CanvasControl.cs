@@ -12,6 +12,7 @@ public class CanvasControl : MonoBehaviour
     public GameObject Pixel;
     public Camera Camera;
     public Text TextBox;
+    public GameObject Cube;
     public Material ClassOneMaterial;
     public Material ClassTwoMaterial;
     public Material ClassThreeMaterial;
@@ -78,6 +79,9 @@ public class CanvasControl : MonoBehaviour
         //this.TextBox.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 
         Debug.Log("Here!");
+
+        this.Cube.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5.0f;
+        this.Cube.transform.rotation = Camera.main.transform.rotation * Quaternion.Euler(0, 0, 0);
 
         //return;
 
