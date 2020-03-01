@@ -41,7 +41,7 @@ class RunInference():
         for x in range(0, 640):
             for y in range(0, 480):
                 dist = depth.get_distance(x, y)
-                if dist > 0 and dist <= 10.0:
+                if dist > 0 and dist <= 5.0:
                     depth_data[y][x] = dist
 
         depth_data_array = []
