@@ -11,10 +11,19 @@ using UnityEngine.XR.MagicLeap;
 
 public class MeshGenerator : MonoBehaviour
 {
+    public Text Text;
     private Mesh mesh;
     
     private PixelInfo[] pixelLocations = new PixelInfo[0];
     private bool maskRequestMade = false;
+
+    private float z = 0.0f;
+    private float x_width = 0.001f;
+    private float y_width = 0.001f;
+    private MLInputController controller;
+    private DateTime lastTriggerTime = DateTime.Now;
+    private int change_dir = 0;
+    private bool change_increase = true;
 
     // Color of class labels
     // Class 0 is omitted so index with (class label - 1)
@@ -29,17 +38,44 @@ public class MeshGenerator : MonoBehaviour
         new Color(0.8f, 0.4f, 0.0f, 1.0f)
     };
 
+    void Awake()
+    {
+        MLInput.OnControllerButtonDown += OnButtonDown;
+        MLInput.OnControllerButtonUp += OnButtonUp;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         this.mesh = new Mesh();
         this.GetComponent<MeshFilter>().mesh = this.mesh;
+
+        MLInput.Start();
+
+        this.controller = MLInput.GetController(MLInput.Hand.Left);
     }
 
     // Update is called once per frame
     void Update()
     {
         UpdateMesh();
+
+        if (this.controller.TriggerValue > 0.2f && (DateTime.Now - this.lastTriggerTime).TotalSeconds > 0.5) {
+            Debug.Log("Trigger tap");
+            this.lastTriggerTime = DateTime.Now;
+            this.change_dir += 1;
+            if (this.change_dir > 2)
+            {
+                this.change_dir = 0;
+            }
+        }
+    }
+
+    public void OnDestroy()
+    {
+        MLInput.OnControllerButtonDown -= OnButtonDown;
+        MLInput.OnControllerButtonUp -= OnButtonUp;
+        MLInput.Stop();
     }
 
     /*
@@ -59,6 +95,52 @@ public class MeshGenerator : MonoBehaviour
         };
     }
     */
+
+    void OnButtonDown(byte controller_id, MLInputControllerButton button) {
+        if ((button == MLInputControllerButton.Bumper)) {
+            Debug.Log("Bumper tap");
+            if (this.change_increase)
+            {
+                if (this.change_dir == 0)
+                {
+                    this.x_width += 0.001f;
+                }
+                else if (this.change_dir == 1)
+                {
+                    this.y_width += 0.001f;
+                }
+                else if (this.change_dir == 2)
+                {
+                    this.z += 0.1f;
+                }
+            }
+            else
+            {
+                if (this.change_dir == 0)
+                {
+                    this.x_width -= 0.001f;
+                }
+                else if (this.change_dir == 1)
+                {
+                    this.y_width -= 0.001f;
+                }
+                else if (this.change_dir == 2)
+                {
+                    this.z -= 0.1f;
+                }
+            }
+        }
+    }
+
+    void OnButtonUp(byte controller_id, MLInputControllerButton button)
+    {
+        if (button == MLInputControllerButton.HomeTap)
+        {
+            Debug.Log("Home tap");
+            this.change_increase = !this.change_increase;
+        }
+    }
+
     void UpdateMesh ()
     {
         // 0.370 is min ML display distance in z
@@ -67,26 +149,22 @@ public class MeshGenerator : MonoBehaviour
         // y from -0.15 to 0.15 at z of 0.5
         this.mesh.Clear();
 
-        float z = 0.0f;
-        float x_width = 0.065f; //0.6
-        float y_width = 0.04125f; //0.04
-
         Vector3[] vertices = new Vector3[]
         {
-            new Vector3(0.0f, 0.0f, z),  // mid point
-            new Vector3(-x_width/2.0f, 0.0f, z),  // left point
-            new Vector3(x_width/2.0f, 0.0f, z),  // right point
-            new Vector3(0.0f, y_width/2.0f, z),  // top point
-            new Vector3(0.0f, -y_width/2.0f, z), // bottom point
+            new Vector3(0.0f, 0.0f, this.z),  // mid point
+            new Vector3(-this.x_width/2.0f, 0.0f, this.z),  // left point
+            new Vector3(this.x_width/2.0f, 0.0f, this.z),  // right point
+            new Vector3(0.0f, this.y_width/2.0f, this.z),  // top point
+            new Vector3(0.0f, -this.y_width/2.0f, this.z), // bottom point
         };
 
         Color[] colors = new Color[]
         {
             new Color(1.0f, 0.0f, 0.0f, 1.0f),
             new Color(0.0f, 1.0f, 0.0f, 1.0f),
-            new Color(0.0f, 0.0f, 1.0f, 1.0f),
+            new Color(0.0f, 1.0f, 0.0f, 1.0f),
             new Color(1.0f, 0.0f, 1.0f, 1.0f),
-            new Color(0.0f, 1.0f, 1.0f, 1.0f)
+            new Color(1.0f, 0.0f, 1.0f, 1.0f)
         };
 
         this.mesh.vertices = vertices;
@@ -100,6 +178,26 @@ public class MeshGenerator : MonoBehaviour
 
         this.mesh.SetIndices(indices, MeshTopology.Points, 0);
         
+        string change_string = "";
+        if (this.change_dir == 0)
+        {
+            change_string = "x";
+        }
+        else if (this.change_dir == 1)
+        {
+            change_string = "y";
+        }
+        else if (this.change_dir == 2)
+        {
+            change_string = "z";
+        }
+
+        this.Text.text = string.Format("x: {0}\ny: {1}\nz: {2}\nchange {3} ({4})",
+                                       this.x_width,
+                                       this.y_width,
+                                       this.z,
+                                       change_string,
+                                       this.change_increase ? "+" : "-");
 
         return;
         /*
