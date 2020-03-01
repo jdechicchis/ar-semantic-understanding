@@ -29,11 +29,11 @@ class CameraVisualizer():
             self.segmented_image.imshow(pred_mask_color, alpha=0.5)
 
             self.depth_image.clear()
-            self.depth_image.imshow(depth_data, cmap="gray", vmin=0, vmax=1)
+            self.depth_image.imshow(depth_data, cmap="gray", vmin=0, vmax=10.0)
             self.depth_image.imshow(pred_mask_color, alpha=0.5)
 
             self.depth_color_overlay.clear()
-            self.depth_color_overlay.imshow(depth_data, cmap="gray", vmin=0, vmax=2)
+            self.depth_color_overlay.imshow(depth_data, cmap="gray", vmin=0, vmax=10.0)
             self.depth_color_overlay.imshow(color_image, alpha=0.3)
         else:
             self.original_image = plt.subplot(2, 2, 1)
@@ -44,11 +44,11 @@ class CameraVisualizer():
             self.segmented_image.imshow(pred_mask_color, alpha=0.5)
 
             self.depth_image = plt.subplot(2, 2, 3)
-            self.depth_image.imshow(depth_data, cmap="gray", vmin=0, vmax=1)
+            self.depth_image.imshow(depth_data, cmap="gray", vmin=0, vmax=10.0)
             self.depth_image.imshow(pred_mask_color, alpha=0.5)
 
             self.depth_color_overlay = plt.subplot(2, 2, 4)
-            self.depth_color_overlay.imshow(depth_data, cmap="gray", vmin=0, vmax=2)
+            self.depth_color_overlay.imshow(depth_data, cmap="gray", vmin=0, vmax=10.0)
             self.depth_color_overlay.imshow(color_image, alpha=0.3)
 
         legend_pathes = []
