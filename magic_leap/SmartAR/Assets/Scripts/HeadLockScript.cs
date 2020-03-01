@@ -5,7 +5,7 @@ using UnityEngine;
 public class HeadLockScript : MonoBehaviour
 {
     public GameObject Camera;
-    private float distance = 1.0f;
+    private float distance = 0.4f;
     
     public void HardHeadLock(GameObject obj) {
         obj.transform.position = this.Camera.transform.position + this.Camera.transform.forward * this.distance;

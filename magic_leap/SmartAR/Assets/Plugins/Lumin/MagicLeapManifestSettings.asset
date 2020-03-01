@@ -78,3 +78,15 @@ MonoBehaviour:
     enabled: 1
   - name: VoiceInput
     enabled: 1
+  - name: AddressBookBasicAccess
+    enabled: 0
+  - name: BluetoothAdapterExternalApp
+    enabled: 0
+  - name: BluetoothAdapterUser
+    enabled: 0
+  - name: BluetoothGattWrite
+    enabled: 0
+  - name: SocialConnectionsInvitesAccess
+    enabled: 0
+  - name: FineLocation
+    enabled: 0
