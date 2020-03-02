@@ -50,7 +50,7 @@ class RunInference():
             for y in range(0, 480):
                 for x in range(0, 640):
                     if depth_data[y][x] > 0 and depth_data[y][x] <= 5.0:
-                        depth_data_array.append([-x / 640, depth_data[y][x], -y / 480])
+                        depth_data_array.append([x, y, depth_data[y][x]])
             if depth_data_array:
                 depth_data_array = np.array(depth_data_array)
 
