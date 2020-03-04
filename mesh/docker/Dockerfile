@@ -33,4 +33,4 @@ RUN git submodule update --init && \
 RUN apt install libgl1-mesa-glx -y
 RUN pip install vtk
 RUN pip install mayavi
-RUN pip install PyQt5
+#RUN pip install PyQt5

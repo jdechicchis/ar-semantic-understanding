@@ -3,10 +3,10 @@ from mayavi import mlab
 import numpy as np
 
 vertices = np.array([
-    [0.0, 0.0],
-    [1.0, 0.0],
-    [1.0, 1.0],
-    [0.0, 1.0]
+    [0.0, 0.0, 0.0],
+    [1.0, 0.0, 0.0],
+    [1.0, 1.0, 0.0],
+    [0.0, 1.0, 0.0]
 ])
 
 tri = pymesh.triangle()
@@ -25,10 +25,15 @@ faces = mesh.faces
 print(vertices)
 print(faces)
 
-#x = np.array(x)
-#y = np.array(y)
-#z = np.array(z)
+x, y, z = zip(*vertices)
+x = np.array(x)
+y = np.array(y)
+z = np.array(z)
 
-#mayavi_mesh = mlab.triangular_mesh(x, y, z, faces)
+print(x)
+print(y)
+print(z)
 
-#mlab.show()
+mayavi_mesh = mlab.triangular_mesh(x, y, z, faces)
+
+mlab.show()

@@ -1,6 +1,6 @@
 # Usage Instructions
 
-Run `docker build -t python-pcl:latest .` to setup the docker container. Use `docker run -t -i -v /path/from/host:/mnt python-pcl` to run the container and mount `/path/from/host` to `/mnt` on the container.
+Run `docker build -t python-pcl:latest . --network host` to setup the docker container. Use `docker run -t -i -v /path/from/host:/mnt python-pcl` to run the container and mount `/path/from/host` to `/mnt` on the container.
 
 ## GUI Support
 
@@ -11,4 +11,4 @@ xhost +
 Test: 
 sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v ~/Downloads:/mnt gns3/xeyes
 
-docker run -it -e DISPLAY=$DISPLAY -v -v /tmp/.X11-unix:/tmp/.X11-unix `pwd`:/mnt pymesh bash
+docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v `pwd`:/mnt pymesh bash
