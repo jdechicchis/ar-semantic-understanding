@@ -8,7 +8,6 @@ import json
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.widgets import Button
-import numpy as np
 
 class CameraVisualizer():
     """
