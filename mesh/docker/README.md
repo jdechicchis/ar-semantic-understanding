@@ -1,6 +1,6 @@
 # Usage Instructions
 
-Run `docker build -t python-pcl:latest . --network host` to setup the docker container. Use `docker run -t -i -v /path/from/host:/mnt python-pcl` to run the container and mount `/path/from/host` to `/mnt` on the container.
+Run `docker build -t pymesh:latest . --network host` to setup the docker container. Use `docker run -t -i -v /path/from/host:/mnt python-pcl` to run the container and mount `/path/from/host` to `/mnt` on the container.
 
 ## GUI Support
 
