@@ -5,6 +5,7 @@ Visualize camera data and inference result for Intel Realsense.
 import os
 import datetime
 import json
+from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.widgets import Button
@@ -77,7 +78,7 @@ class CameraVisualizer():
             """
             current_time = datetime.datetime.utcnow()
             current_time_file_prefix = current_time.strftime("%Y-%m-%d_%H-%M-%S-%f")
-            file_name = os.path.join(save_dir, current_time_file_prefix) + ".json"
+            file_name = os.path.join(save_dir, current_time_file_prefix)
 
             print("Save point cloud: {}".format(file_name))
 
@@ -95,8 +96,10 @@ class CameraVisualizer():
                 "depth": depth_array
             }
 
-            with open(file_name, "w+") as outfile:
+            with open(file_name + ".json", "w+") as outfile:
                 json.dump(data, outfile)
+            image = Image.fromarray(color_image)
+            image.save(file_name + ".jpg")
 
         save_button.on_clicked(save_point_cloud)
 
