@@ -45,8 +45,6 @@ def calculate_accuracy(class_id, model, data_ids, images_path, annotations_path,
     results = []
 
     for idx, data_id in enumerate(data_ids):
-        if idx > 10: break
-
         image_file = Image.open(os.path.join(images_path, data_id + ".jpg"))
         image = np.asarray(image_file)
 
