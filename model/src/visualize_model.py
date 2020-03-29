@@ -104,7 +104,7 @@ def main():
         "#####################################\n\n"
     )
 
-    parser = argparse.ArgumentParser(description="Train model on SUN RGB-D data.")
+    parser = argparse.ArgumentParser(description="Visualize model on SUN RGB-D data.")
     parser.add_argument("data_path", type=str, help="Path to the data.")
     parser.add_argument("--checkpoint_file", type=str, help="Checkpoint file.")
     parser.add_argument("--normalize", action="store_true", help="Normalize input.")
