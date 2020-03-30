@@ -6,9 +6,8 @@ Run `docker build -t pymesh:latest . --network host` to setup the docker contain
 
 For Mac see: https://cntnr.io/running-guis-with-docker-on-mac-os-x-a14df6a76efc
 
-xhost +
+`xhost +`
 
-Test: 
-sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v ~/Downloads:/mnt gns3/xeyes
+Test: `sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v ~/Downloads:/mnt gns3/xeyes`
 
-docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v `pwd`:/mnt pymesh bash
+``docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v `pwd`:/mnt pymesh bash``
