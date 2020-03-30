@@ -22,14 +22,14 @@ MODEL = segnet_model
 # Number of classes per pixel
 NUM_CLASSES = 8
 CLASS_LABELS_AND_COLORS = [
-    {"color": [255, 255, 255], "label": "Unknown"},
+    {"color": [86, 19, 103], "label": "Unknown"},
     {"color": [0, 255, 255], "label": "Bookshelf"},
     {"color": [255, 0, 255], "label": "Desk/Table/Counter"},
     {"color": [255, 255, 0], "label": "Chair"},
     {"color": [255, 0, 0], "label": "Book/Paper"},
     {"color": [0, 255, 0], "label": "Picture"},
     {"color": [0, 0, 255], "label": "Window"},
-    {"color": [0, 0, 0], "label": "Door"}
+    {"color": [224, 165, 8], "label": "Door"}
 ]
 
 DATA_MEAN = [0.491024, 0.455375, 0.427466]
@@ -104,7 +104,7 @@ def main():
         "#####################################\n\n"
     )
 
-    parser = argparse.ArgumentParser(description="Train model on SUN RGB-D data.")
+    parser = argparse.ArgumentParser(description="Visualize model on SUN RGB-D data.")
     parser.add_argument("data_path", type=str, help="Path to the data.")
     parser.add_argument("--checkpoint_file", type=str, help="Checkpoint file.")
     parser.add_argument("--normalize", action="store_true", help="Normalize input.")
