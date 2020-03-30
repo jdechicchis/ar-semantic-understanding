@@ -11,7 +11,13 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 
+from metrics import custom_balanced_accuracy, custom_accuracy
+
 from models.segnet import segnet_model
+
+# Metric
+METRIC = custom_accuracy
+# METRIC = custom_balanced_accuracy
 
 # Model
 MODEL = segnet_model
@@ -33,18 +39,20 @@ def create_mask(pred_mask):
     pred_mask = np.argmax(pred_mask, axis=3)
     return pred_mask[0]
 
-def calculate_accuracy(class_id, model, data_ids, images_path, annotations_path, normalize):
+def calculate_accuracy(model, data_ids, images_path, annotations_path, normalize):
     """
     Calculate the accuracy.
     """
     mean = np.array(DATA_MEAN)
     std = np.array(DATA_STD)
 
-    accuracy_metric = tf.keras.metrics.Accuracy()
-
-    results = []
+    results = {}
+    for class_id in range(0, NUM_CLASSES):
+        results[class_id] = []
 
     for idx, data_id in enumerate(data_ids):
+        print("{} of {}".format(idx + 1, len(data_ids)))
+
         image_file = Image.open(os.path.join(images_path, data_id + ".jpg"))
         image = np.asarray(image_file)
 
@@ -52,38 +60,36 @@ def calculate_accuracy(class_id, model, data_ids, images_path, annotations_path,
         annotation_data = json.load(annotation_file)
         label = np.array(annotation_data["annotation"], dtype=np.uint8)
 
-        ground_truth_label = np.zeros((HEIGHT, WIDTH), dtype=np.float32)
-
-        for h in range(0, HEIGHT):
-            for w in range(0, WIDTH):
-                ground_truth_label[h][w] = 1 if label[h][w] == class_id else 0
-
         if normalize:
             image = (image - mean) / std
 
         pred_mask = model.predict(np.stack([image], axis=0))
         pred_mask = create_mask(pred_mask)
 
-        for h in range(0, 224):
-            for w in range(0, 224):
-                pred_mask[h][w] = 1 if pred_mask[h][w] == class_id else 0
+        for class_id in range(0, NUM_CLASSES):
+            pred = np.zeros((HEIGHT, WIDTH), dtype=np.float32)
+            ground_truth_label = np.zeros((HEIGHT, WIDTH), dtype=np.float32)
 
-        num_correct = 0
-        count = 0
-        for h in range(0, 224):
-            for w in range(0, 224):
-                if pred_mask[h][w] == ground_truth_label[h][w]:
-                    num_correct += 1
-                count += 1
+            for h in range(0, HEIGHT):
+                for w in range(0, WIDTH):
+                    ground_truth_label[h][w] = 1 if label[h][w] == class_id else 0
 
-        accuracy = float(accuracy_metric(ground_truth_label, pred_mask))
-        results.append(accuracy)
+            for h in range(0, 224):
+                for w in range(0, 224):
+                    pred[h][w] = 1 if pred_mask[h][w] == class_id else 0
 
-        print("{} of {}: {}".format(idx + 1, len(data_ids), accuracy))
+            metric = METRIC(ground_truth_label, pred)
+            result = results[class_id]
+            result.append(metric)
+            results[class_id] = result
 
-    results = np.array(results, dtype=np.float32)
+            print("\tclass {}: {}".format(class_id, metric))
 
-    print("Average accuracy for class {}: {} with STD {}".format(class_id, np.mean(results), np.std(results)))
+    for class_id in range(0, NUM_CLASSES):
+        result = results[class_id]
+        result = np.array(result, dtype=np.float32)
+
+        print("Metric for class {}: {} with STD {}".format(class_id, np.mean(result), np.std(result)))
 
 def main():
     """
@@ -96,7 +102,6 @@ def main():
     )
 
     parser = argparse.ArgumentParser(description="Calculate class ID.")
-    parser.add_argument("class_id", type=str, help="Path to the data.")
     parser.add_argument("data_path", type=str, help="Path to the data.")
     parser.add_argument("checkpoint_file", type=str, help="Checkpoint file.")
     parser.add_argument("--normalize", action="store_true", help="Normalize input.")
@@ -116,7 +121,7 @@ def main():
 
     test_set_ids = train_test_data_split["test"]
 
-    calculate_accuracy(int(args.class_id), model, test_set_ids, images_path, annotations_path, args.normalize)
+    calculate_accuracy(model, test_set_ids, images_path, annotations_path, args.normalize)
 
 if __name__ == "__main__":
     sys.exit(main())

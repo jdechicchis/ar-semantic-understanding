@@ -66,3 +66,48 @@ def iou(y_true, y_pred):
     intersection = K.round(K.clip(y_true * y_pred, 0, 1))
     union = K.round(K.clip(y_true + y_pred, 0, 1))
     return K.sum(intersection) / K.sum(union)
+
+def custom_accuracy(y_true, y_pred):
+    height = 224
+    width = 224
+
+    correct = 0
+    total = 0
+    for h in range(0, height):
+        for w in range(0, width):
+            if y_pred[h][w] == y_true[h][w]:
+                correct += 1
+            total += 1
+
+    return correct / total
+
+def custom_balanced_accuracy(y_true, y_pred):
+    """
+    Calculate balanced_accuracy = (TPR + TNR) / 2.
+    """
+    height = 224
+    width = 224
+
+    true_positives = 0
+    false_positives = 0
+    true_negatives = 0
+    false_negatives = 0
+    for h in range(0, height):
+        for w in range(0, width):
+            if y_true[h][w] == 1:
+                if y_pred[h][w] == 1:
+                    true_positives += 1
+                else:
+                    false_negatives += 1
+            if y_true[h][w] == 0:
+                if y_pred[h][w] == 1:
+                    false_positives += 1
+                else:
+                    true_negatives += 1
+
+    true_positive_rate = 1
+    if true_positives and false_negatives > 0:
+        true_positive_rate = true_positives / (true_positives + false_negatives)
+    true_negative_rate = true_negatives / (false_positives + true_negatives)
+
+    return (true_positive_rate + true_negative_rate) / 2
