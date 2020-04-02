@@ -11,13 +11,9 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 
-from metrics import custom_balanced_accuracy, custom_accuracy
+from metrics import custom_balanced_accuracy, custom_accuracy, balanced_accuracy
 
 from models.segnet import segnet_model
-
-# Metric
-METRIC = custom_accuracy
-# METRIC = custom_balanced_accuracy
 
 # Model
 MODEL = segnet_model
@@ -45,6 +41,10 @@ def calculate_accuracy(model, data_ids, images_path, annotations_path, normalize
     """
     mean = np.array(DATA_MEAN)
     std = np.array(DATA_STD)
+
+    metrics = {}
+    for class_id in range(0, NUM_CLASSES):
+        metrics[class_id] = balanced_accuracy()
 
     results = {}
     for class_id in range(0, NUM_CLASSES):
@@ -78,9 +78,10 @@ def calculate_accuracy(model, data_ids, images_path, annotations_path, normalize
                 for w in range(0, 224):
                     pred[h][w] = 1 if pred_mask[h][w] == class_id else 0
 
-            metric = METRIC(ground_truth_label, pred)
+            metric = metrics[class_id](ground_truth_label, pred)
             result = results[class_id]
-            result.append(metric)
+            if metric >= 0.0:
+                result.append(metric)
             results[class_id] = result
 
             print("\tclass {}: {}".format(class_id, metric))
