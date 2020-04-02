@@ -106,8 +106,9 @@ def custom_balanced_accuracy(y_true, y_pred):
                     true_negatives += 1
 
     true_positive_rate = 1
-    if true_positives and false_negatives > 0:
-        true_positive_rate = true_positives / (true_positives + false_negatives)
+    if true_positives == 0 and false_negatives == 0:
+        return -1
+    true_positive_rate = true_positives / (true_positives + false_negatives)
     true_negative_rate = true_negatives / (false_positives + true_negatives)
 
     return (true_positive_rate + true_negative_rate) / 2
